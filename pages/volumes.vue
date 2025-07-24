@@ -11,13 +11,10 @@
       </div>
     </div>
 
-    <DataTable 
-      :value="filteredVolumes" 
-      :paginator="true" 
-      :rows="10" 
+    <DataTable :value="filteredVolumes" :paginator="true" :rows="8" :rowsPerPageOptions="[5, 8, 15, 25]"
       responsive-layout="scroll"
-      :loading="pending"
-    >
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+      current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录" :loading="pending">
       <Column field="name" header="存储卷名称">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
@@ -34,20 +31,9 @@
       <Column header="操作" class="w-32">
         <template #body="slotProps">
           <div class="flex gap-1">
-            <Button 
-              icon="pi pi-eye" 
-              size="small" 
-              text 
-              @click="inspectVolume(slotProps.data.name)"
-            />
-            <Button 
-              icon="pi pi-trash" 
-              size="small" 
-              text 
-              severity="danger" 
-              :disabled="slotProps.data.containers > 0"
-              @click="deleteVolume(slotProps.data.name)"
-            />
+            <Button icon="pi pi-eye" size="small" text @click="inspectVolume(slotProps.data.name)" />
+            <Button icon="pi pi-trash" size="small" text severity="danger" :disabled="slotProps.data.containers > 0"
+              @click="deleteVolume(slotProps.data.name)" />
           </div>
         </template>
       </Column>
@@ -62,14 +48,8 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">驱动</label>
-          <Dropdown 
-            v-model="newVolume.driver" 
-            :options="driverOptions" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择驱动"
-          />
+          <Dropdown v-model="newVolume.driver" :options="driverOptions" option-label="label" option-value="value"
+            class="w-full" placeholder="选择驱动" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">标签</label>
@@ -149,8 +129,8 @@ const { data: volumes, pending, refresh } = await useLazyAsyncData('volumes', ()
 const filteredVolumes = computed(() => {
   if (!volumes.value) return []
   if (!searchQuery.value) return volumes.value
-  
-  return volumes.value.filter(volume => 
+
+  return volumes.value.filter(volume =>
     volume.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
@@ -170,18 +150,18 @@ const deleteVolume = async (name: string) => {
 
 const createVolume = async () => {
   if (!newVolume.value.name) return
-  
+
   creating.value = true
-  
+
   try {
     console.log('创建存储卷:', newVolume.value)
-    
+
     newVolume.value = {
       name: '',
       driver: 'local',
       labels: ''
     }
-    
+
     showCreateVolume.value = false
     await refresh()
   } catch (error) {
@@ -201,7 +181,7 @@ const createVolume = async () => {
   width: 16rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 </style>

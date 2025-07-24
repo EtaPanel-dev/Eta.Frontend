@@ -13,7 +13,7 @@
           </div>
         </template>
       </Card>
-      
+
       <Card class="stat-card">
         <template #content>
           <div class="flex items-center justify-between">
@@ -25,7 +25,7 @@
           </div>
         </template>
       </Card>
-      
+
       <Card class="stat-card">
         <template #content>
           <div class="flex items-center justify-between">
@@ -37,7 +37,7 @@
           </div>
         </template>
       </Card>
-      
+
       <Card class="stat-card">
         <template #content>
           <div class="flex items-center justify-between">
@@ -82,7 +82,7 @@
               <span class="font-medium">{{ redisInfo.persistence }}</span>
             </div>
           </div>
-          
+
           <div class="flex gap-2 mt-4">
             <Button label="重启Redis" icon="pi pi-refresh" size="small" />
             <Button label="清空缓存" icon="pi pi-trash" size="small" outlined severity="warning" />
@@ -101,15 +101,13 @@
         </template>
         <template #content>
           <div class="mb-4">
-            <InputText 
-              v-model="keySearch" 
-              placeholder="搜索键名..." 
-              class="w-full"
-              @input="searchKeys"
-            />
+            <InputText v-model="keySearch" placeholder="搜索键名..." class="w-full" @input="searchKeys" />
           </div>
-          
-          <DataTable :value="filteredKeys" responsive-layout="scroll" :rows="8" :paginator="true">
+
+          <DataTable :value="filteredKeys" responsive-layout="scroll" :rows="6" :paginator="true"
+            :rowsPerPageOptions="[6, 10, 20]"
+            paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录">
             <Column field="key" header="键名">
               <template #body="slotProps">
                 <span class="font-mono text-sm">{{ slotProps.data.key }}</span>
@@ -124,19 +122,9 @@
             <Column header="操作" class="w-20">
               <template #body="slotProps">
                 <div class="flex gap-1">
-                  <Button 
-                    icon="pi pi-eye" 
-                    size="small" 
-                    text 
-                    @click="viewKey(slotProps.data.key)"
-                  />
-                  <Button 
-                    icon="pi pi-trash" 
-                    size="small" 
-                    text 
-                    severity="danger" 
-                    @click="deleteKey(slotProps.data.key)"
-                  />
+                  <Button icon="pi pi-eye" size="small" text @click="viewKey(slotProps.data.key)" />
+                  <Button icon="pi pi-trash" size="small" text severity="danger"
+                    @click="deleteKey(slotProps.data.key)" />
                 </div>
               </template>
             </Column>
@@ -154,14 +142,8 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">类型</label>
-          <Dropdown 
-            v-model="newKey.type" 
-            :options="keyTypes" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择类型"
-          />
+          <Dropdown v-model="newKey.type" :options="keyTypes" option-label="label" option-value="value" class="w-full"
+            placeholder="选择类型" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">值</label>
@@ -238,8 +220,8 @@ const { data: keys } = await useLazyAsyncData('redis-keys', () => {
 const filteredKeys = computed(() => {
   if (!keys.value) return []
   if (!keySearch.value) return keys.value
-  
-  return keys.value.filter(key => 
+
+  return keys.value.filter(key =>
     key.key.toLowerCase().includes(keySearch.value.toLowerCase())
   )
 })
@@ -259,19 +241,19 @@ const deleteKey = async (key: string) => {
 
 const addKey = async () => {
   if (!newKey.value.key || !newKey.value.value) return
-  
+
   adding.value = true
-  
+
   try {
     console.log('添加键:', newKey.value)
-    
+
     newKey.value = {
       key: '',
       type: 'string',
       value: '',
       ttl: 0
     }
-    
+
     showAddKey.value = false
   } catch (error) {
     console.error('添加键失败:', error)
@@ -286,11 +268,11 @@ const addKey = async () => {
   width: 5rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 
-.space-y-3 > * + * {
+.space-y-3>*+* {
   margin-top: 0.75rem;
 }
 

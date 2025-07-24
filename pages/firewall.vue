@@ -13,7 +13,7 @@
           </div>
         </template>
       </Card>
-      
+
       <Card class="stat-card">
         <template #content>
           <div class="flex items-center justify-between">
@@ -25,7 +25,7 @@
           </div>
         </template>
       </Card>
-      
+
       <Card class="stat-card">
         <template #content>
           <div class="flex items-center justify-between">
@@ -61,29 +61,17 @@
             </Column>
             <Column field="action" header="动作">
               <template #body="slotProps">
-                <Tag 
-                  :severity="slotProps.data.action === 'ALLOW' ? 'success' : 'danger'" 
-                  :value="slotProps.data.action"
-                />
+                <Tag :severity="slotProps.data.action === 'ALLOW' ? 'success' : 'danger'"
+                  :value="slotProps.data.action" />
               </template>
             </Column>
             <Column field="source" header="来源" />
             <Column header="操作" class="w-20">
               <template #body="slotProps">
                 <div class="flex gap-1">
-                  <Button 
-                    icon="pi pi-pencil" 
-                    size="small" 
-                    text 
-                    @click="editRule(slotProps.data.id)"
-                  />
-                  <Button 
-                    icon="pi pi-trash" 
-                    size="small" 
-                    text 
-                    severity="danger" 
-                    @click="deleteRule(slotProps.data.id)"
-                  />
+                  <Button icon="pi pi-pencil" size="small" text @click="editRule(slotProps.data.id)" />
+                  <Button icon="pi pi-trash" size="small" text severity="danger"
+                    @click="deleteRule(slotProps.data.id)" />
                 </div>
               </template>
             </Column>
@@ -93,41 +81,123 @@
 
       <!-- 快速操作 -->
       <Card>
-        <template #title>快速操作</template>
+        <template #title>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-bolt text-orange-500" />
+            <span>快速操作</span>
+          </div>
+        </template>
         <template #content>
-          <div class="space-y-4">
+          <div class="quick-actions-container">
             <!-- 防火墙控制 -->
-            <div class="p-4 border rounded-lg">
-              <h4 class="font-medium mb-3">防火墙控制</h4>
-              <div class="flex gap-2">
-                <Button label="启用防火墙" icon="pi pi-check" severity="success" size="small" />
-                <Button label="禁用防火墙" icon="pi pi-times" severity="danger" size="small" outlined />
-                <Button label="重载规则" icon="pi pi-refresh" size="small" outlined />
+            <div class="action-section firewall-control">
+              <div class="section-header">
+                <i class="pi pi-shield" />
+                <h4>防火墙控制</h4>
+              </div>
+              <div class="action-buttons">
+                <Button label="启用防火墙" icon="pi pi-check" severity="success" size="small"
+                  class="control-btn enable-btn" />
+                <Button label="禁用防火墙" icon="pi pi-times" severity="danger" size="small" outlined
+                  class="control-btn disable-btn" />
+                <Button label="重载规则" icon="pi pi-refresh" size="small" outlined class="control-btn reload-btn" />
               </div>
             </div>
 
             <!-- 常用端口 -->
-            <div class="p-4 border rounded-lg">
-              <h4 class="font-medium mb-3">常用端口</h4>
-              <div class="grid grid-cols-2 gap-2">
-                <Button label="HTTP (80)" size="small" outlined @click="quickAddRule('80', 'HTTP')" />
-                <Button label="HTTPS (443)" size="small" outlined @click="quickAddRule('443', 'HTTPS')" />
-                <Button label="SSH (22)" size="small" outlined @click="quickAddRule('22', 'SSH')" />
-                <Button label="FTP (21)" size="small" outlined @click="quickAddRule('21', 'FTP')" />
-                <Button label="MySQL (3306)" size="small" outlined @click="quickAddRule('3306', 'MySQL')" />
-                <Button label="Redis (6379)" size="small" outlined @click="quickAddRule('6379', 'Redis')" />
+            <div class="action-section port-section">
+              <div class="section-header">
+                <i class="pi pi-sitemap" />
+                <h4>常用端口</h4>
+              </div>
+              <div class="port-grid">
+                <Button label="HTTP" icon="pi pi-globe" size="small" outlined class="port-btn http-btn"
+                  @click="quickAddRule('80', 'HTTP')">
+                  <template #default>
+                    <div class="port-btn-content">
+                      <i class="pi pi-globe" />
+                      <span class="port-name">HTTP</span>
+                      <span class="port-number">80</span>
+                    </div>
+                  </template>
+                </Button>
+                <Button label="HTTPS" icon="pi pi-shield" size="small" outlined class="port-btn https-btn"
+                  @click="quickAddRule('443', 'HTTPS')">
+                  <template #default>
+                    <div class="port-btn-content">
+                      <i class="pi pi-shield" />
+                      <span class="port-name">HTTPS</span>
+                      <span class="port-number">443</span>
+                    </div>
+                  </template>
+                </Button>
+                <Button label="SSH" icon="pi pi-desktop" size="small" outlined class="port-btn ssh-btn"
+                  @click="quickAddRule('22', 'SSH')">
+                  <template #default>
+                    <div class="port-btn-content">
+                      <i class="pi pi-desktop" />
+                      <span class="port-name">SSH</span>
+                      <span class="port-number">22</span>
+                    </div>
+                  </template>
+                </Button>
+                <Button label="FTP" icon="pi pi-folder" size="small" outlined class="port-btn ftp-btn"
+                  @click="quickAddRule('21', 'FTP')">
+                  <template #default>
+                    <div class="port-btn-content">
+                      <i class="pi pi-folder" />
+                      <span class="port-name">FTP</span>
+                      <span class="port-number">21</span>
+                    </div>
+                  </template>
+                </Button>
+                <Button label="MySQL" icon="pi pi-database" size="small" outlined class="port-btn mysql-btn"
+                  @click="quickAddRule('3306', 'MySQL')">
+                  <template #default>
+                    <div class="port-btn-content">
+                      <i class="pi pi-database" />
+                      <span class="port-name">MySQL</span>
+                      <span class="port-number">3306</span>
+                    </div>
+                  </template>
+                </Button>
+                <Button label="Redis" icon="pi pi-server" size="small" outlined class="port-btn redis-btn"
+                  @click="quickAddRule('6379', 'Redis')">
+                  <template #default>
+                    <div class="port-btn-content">
+                      <i class="pi pi-server" />
+                      <span class="port-name">Redis</span>
+                      <span class="port-number">6379</span>
+                    </div>
+                  </template>
+                </Button>
               </div>
             </div>
 
             <!-- IP黑名单 -->
-            <div class="p-4 border rounded-lg">
-              <h4 class="font-medium mb-3">IP管理</h4>
-              <div class="flex gap-2 mb-2">
-                <InputText v-model="newBlockIP" placeholder="输入IP地址" class="flex-1" />
-                <Button label="拉黑" icon="pi pi-ban" size="small" severity="danger" @click="blockIP" />
+            <div class="action-section ip-section">
+              <div class="section-header">
+                <i class="pi pi-ban" />
+                <h4>IP管理</h4>
               </div>
-              <div class="text-xs text-gray-600">
-                <div>已拉黑IP: 192.168.1.100, 10.0.0.50</div>
+              <div class="ip-input-group">
+                <InputText v-model="newBlockIP" placeholder="输入IP地址 (例: 192.168.1.100)" class="ip-input" />
+                <Button label="拉黑" icon="pi pi-ban" size="small" severity="danger" class="block-btn" @click="blockIP" />
+              </div>
+              <div class="blocked-ips">
+                <div class="blocked-ips-header">
+                  <span class="blocked-count">已拉黑 2 个IP</span>
+                </div>
+                <div class="blocked-ip-list">
+                  <div class="blocked-ip-item">
+                    <span class="ip-address">192.168.1.100</span>
+                    <Button icon="pi pi-times" size="small" text class="remove-ip-btn" />
+                  </div>
+                  <div class="blocked-ip-item">
+                    <span class="ip-address">10.0.0.50</span>
+                    <Button icon="pi pi-times" size="small" text class="remove-ip-btn" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -144,25 +214,13 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">协议</label>
-          <Dropdown 
-            v-model="newRule.protocol" 
-            :options="protocols" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择协议"
-          />
+          <Dropdown v-model="newRule.protocol" :options="protocols" option-label="label" option-value="value"
+            class="w-full" placeholder="选择协议" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">动作</label>
-          <Dropdown 
-            v-model="newRule.action" 
-            :options="actions" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择动作"
-          />
+          <Dropdown v-model="newRule.action" :options="actions" option-label="label" option-value="value" class="w-full"
+            placeholder="选择动作" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">来源IP</label>
@@ -285,12 +343,12 @@ const blockIP = () => {
 
 const createRule = async () => {
   if (!newRule.value.port) return
-  
+
   creating.value = true
-  
+
   try {
     console.log('创建防火墙规则:', newRule.value)
-    
+
     newRule.value = {
       port: '',
       protocol: 'tcp',
@@ -298,7 +356,7 @@ const createRule = async () => {
       source: 'any',
       comment: ''
     }
-    
+
     showCreateRule.value = false
   } catch (error) {
     console.error('创建规则失败:', error)
@@ -313,7 +371,7 @@ const createRule = async () => {
   width: 5rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 

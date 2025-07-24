@@ -12,13 +12,10 @@
       </div>
     </div>
 
-    <DataTable 
-      :value="filteredSSL" 
-      :paginator="true" 
-      :rows="10" 
+    <DataTable :value="filteredSSL" :paginator="true" :rows="8" :rowsPerPageOptions="[5, 8, 15, 25]"
       responsive-layout="scroll"
-      :loading="pending"
-    >
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+      current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录" :loading="pending">
       <Column field="domain" header="域名">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
@@ -31,59 +28,29 @@
       <Column field="type" header="类型" />
       <Column field="status" header="状态">
         <template #body="slotProps">
-          <Tag 
-            :severity="getSSLStatusSeverity(slotProps.data.status)" 
-            :value="slotProps.data.status"
-          />
+          <Tag :severity="getSSLStatusSeverity(slotProps.data.status)" :value="slotProps.data.status" />
         </template>
       </Column>
       <Column field="expires" header="到期时间">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
             <span>{{ slotProps.data.expires }}</span>
-            <Tag 
-              v-if="slotProps.data.daysLeft <= 30" 
-              severity="warning" 
-              :value="`${slotProps.data.daysLeft}天`"
-            />
+            <Tag v-if="slotProps.data.daysLeft <= 30" severity="warning" :value="`${slotProps.data.daysLeft}天`" />
           </div>
         </template>
       </Column>
       <Column field="autoRenew" header="自动续期">
         <template #body="slotProps">
-          <i 
-            :class="slotProps.data.autoRenew ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"
-          />
+          <i :class="slotProps.data.autoRenew ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'" />
         </template>
       </Column>
       <Column header="操作" class="w-40">
         <template #body="slotProps">
           <div class="flex gap-1">
-            <Button 
-              icon="pi pi-eye" 
-              size="small" 
-              text 
-              @click="viewSSL(slotProps.data.id)"
-            />
-            <Button 
-              icon="pi pi-refresh" 
-              size="small" 
-              text 
-              @click="renewSSL(slotProps.data.id)"
-            />
-            <Button 
-              icon="pi pi-download" 
-              size="small" 
-              text 
-              @click="downloadSSL(slotProps.data.id)"
-            />
-            <Button 
-              icon="pi pi-trash" 
-              size="small" 
-              text 
-              severity="danger" 
-              @click="deleteSSL(slotProps.data.id)"
-            />
+            <Button icon="pi pi-eye" size="small" text @click="viewSSL(slotProps.data.id)" />
+            <Button icon="pi pi-refresh" size="small" text @click="renewSSL(slotProps.data.id)" />
+            <Button icon="pi pi-download" size="small" text @click="downloadSSL(slotProps.data.id)" />
+            <Button icon="pi pi-trash" size="small" text severity="danger" @click="deleteSSL(slotProps.data.id)" />
           </div>
         </template>
       </Column>
@@ -98,25 +65,13 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">证书类型</label>
-          <Dropdown 
-            v-model="newSSL.type" 
-            :options="sslTypes" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择证书类型"
-          />
+          <Dropdown v-model="newSSL.type" :options="sslTypes" option-label="label" option-value="value" class="w-full"
+            placeholder="选择证书类型" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">验证方式</label>
-          <Dropdown 
-            v-model="newSSL.validation" 
-            :options="validationMethods" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择验证方式"
-          />
+          <Dropdown v-model="newSSL.validation" :options="validationMethods" option-label="label" option-value="value"
+            class="w-full" placeholder="选择验证方式" />
         </div>
         <div class="flex items-center gap-2">
           <Checkbox v-model="newSSL.autoRenew" binary />
@@ -201,8 +156,8 @@ const { data: sslCerts, pending, refresh } = await useLazyAsyncData('ssl', () =>
 const filteredSSL = computed(() => {
   if (!sslCerts.value) return []
   if (!searchQuery.value) return sslCerts.value
-  
-  return sslCerts.value.filter(cert => 
+
+  return sslCerts.value.filter(cert =>
     cert.domain.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
@@ -240,19 +195,19 @@ const deleteSSL = async (id: string) => {
 
 const createSSL = async () => {
   if (!newSSL.value.domain) return
-  
+
   creating.value = true
-  
+
   try {
     console.log('申请SSL证书:', newSSL.value)
-    
+
     newSSL.value = {
       domain: '',
       type: 'free',
       validation: 'http',
       autoRenew: true
     }
-    
+
     showCreateSSL.value = false
     await refresh()
   } catch (error) {
@@ -272,7 +227,7 @@ const createSSL = async () => {
   width: 16rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 </style>

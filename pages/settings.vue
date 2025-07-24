@@ -5,13 +5,8 @@
       <Card class="lg:col-span-1">
         <template #content>
           <div class="space-y-2">
-            <div 
-              v-for="item in settingsMenu" 
-              :key="item.key"
-              class="settings-menu-item"
-              :class="{ active: activeTab === item.key }"
-              @click="activeTab = item.key"
-            >
+            <div v-for="item in settingsMenu" :key="item.key" class="settings-menu-item"
+              :class="{ active: activeTab === item.key }" @click="activeTab = item.key">
               <i :class="item.icon" />
               <span>{{ item.label }}</span>
             </div>
@@ -33,23 +28,13 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium mb-2">时区</label>
-                  <Dropdown 
-                    v-model="systemSettings.timezone" 
-                    :options="timezones" 
-                    option-label="label" 
-                    option-value="value" 
-                    class="w-full"
-                  />
+                  <Dropdown v-model="systemSettings.timezone" :options="timezones" option-label="label"
+                    option-value="value" class="w-full" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium mb-2">语言</label>
-                  <Dropdown 
-                    v-model="systemSettings.language" 
-                    :options="languages" 
-                    option-label="label" 
-                    option-value="value" 
-                    class="w-full"
-                  />
+                  <Dropdown v-model="systemSettings.language" :options="languages" option-label="label"
+                    option-value="value" class="w-full" />
                 </div>
               </div>
               <div class="space-y-4">
@@ -153,13 +138,8 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-2">备份频率</label>
-                    <Dropdown 
-                      v-model="backupSettings.frequency" 
-                      :options="backupFrequencies" 
-                      option-label="label" 
-                      option-value="value" 
-                      class="w-full"
-                    />
+                    <Dropdown v-model="backupSettings.frequency" :options="backupFrequencies" option-label="label"
+                      option-value="value" class="w-full" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-2">保留天数</label>
@@ -174,13 +154,8 @@
                 <div class="space-y-4">
                   <div>
                     <label class="block text-sm font-medium mb-2">存储类型</label>
-                    <Dropdown 
-                      v-model="backupSettings.storage" 
-                      :options="storageTypes" 
-                      option-label="label" 
-                      option-value="value" 
-                      class="w-full"
-                    />
+                    <Dropdown v-model="backupSettings.storage" :options="storageTypes" option-label="label"
+                      option-value="value" class="w-full" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-2">存储路径</label>
@@ -349,15 +324,23 @@ const storageTypes = [
 </script>
 
 <style scoped>
-.space-y-2 > * + * {
+.settings-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.space-y-2>*+* {
   margin-top: 0.5rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 
-.space-y-6 > * + * {
+.space-y-6>*+* {
   margin-top: 1.5rem;
 }
 
@@ -369,16 +352,16 @@ const storageTypes = [
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .settings-menu-item:hover {
-  background-color: #f1f5f9;
-  color: #334155;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .settings-menu-item.active {
-  background-color: #3b82f6;
+  background-color: var(--accent-primary);
   color: white;
 }
 
@@ -405,11 +388,11 @@ const storageTypes = [
   .lg\:col-span-1 {
     grid-column: span 1 / span 1;
   }
-  
+
   .lg\:col-span-3 {
     grid-column: span 3 / span 3;
   }
-  
+
   .lg\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -424,6 +407,6 @@ const storageTypes = [
 }
 
 .bg-gray-50 {
-  background-color: #f9fafb;
+  background-color: var(--bg-secondary);
 }
 </style>

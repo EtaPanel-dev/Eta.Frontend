@@ -20,46 +20,23 @@
                 <i class="pi pi-globe text-blue-500" />
                 <span class="font-medium">{{ website.domain }}</span>
               </div>
-              <Tag 
-                :severity="website.status === 'active' ? 'success' : 'danger'" 
-                :value="website.status === 'active' ? '运行中' : '已停止'"
-              />
+              <Tag :severity="website.status === 'active' ? 'success' : 'danger'"
+                :value="website.status === 'active' ? '运行中' : '已停止'" />
             </div>
-            
-            <div class="text-sm text-gray-600 space-y-1">
+
+            <div class="text-sm text-secondary-content space-y-1">
               <div><strong>根目录:</strong> {{ website.root }}</div>
               <div><strong>PHP版本:</strong> {{ website.php }}</div>
               <div><strong>SSL:</strong> {{ website.ssl ? '已启用' : '未启用' }}</div>
               <div><strong>创建时间:</strong> {{ website.created }}</div>
             </div>
-            
+
             <div class="flex gap-2 pt-2">
-              <Button 
-                icon="pi pi-external-link" 
-                size="small" 
-                text 
-                @click="openWebsite(website.domain)"
-              />
-              <Button 
-                icon="pi pi-cog" 
-                size="small" 
-                text 
-                @click="editWebsite(website.id)"
-              />
-              <Button 
-                icon="pi pi-shield" 
-                size="small" 
-                text 
-                :severity="website.ssl ? 'success' : 'secondary'"
-                @click="manageSSL(website.id)"
-              />
-              <Button 
-                icon="pi pi-trash" 
-                size="small" 
-                text 
-                severity="danger" 
-                @click="deleteWebsite(website.id)"
-              />
+              <Button icon="pi pi-external-link" size="small" text @click="openWebsite(website.domain)" />
+              <Button icon="pi pi-cog" size="small" text @click="editWebsite(website.id)" />
+              <Button icon="pi pi-shield" size="small" text :severity="website.ssl ? 'success' : 'secondary'"
+                @click="manageSSL(website.id)" />
+              <Button icon="pi pi-trash" size="small" text severity="danger" @click="deleteWebsite(website.id)" />
             </div>
           </div>
         </template>
@@ -79,14 +56,8 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">PHP版本</label>
-          <Dropdown 
-            v-model="newWebsite.php" 
-            :options="phpVersions" 
-            option-label="label" 
-            option-value="value" 
-            class="w-full" 
-            placeholder="选择PHP版本"
-          />
+          <Dropdown v-model="newWebsite.php" :options="phpVersions" option-label="label" option-value="value"
+            class="w-full" placeholder="选择PHP版本" />
         </div>
         <div class="flex items-center gap-2">
           <Checkbox v-model="newWebsite.ssl" binary />
@@ -163,8 +134,8 @@ const { data: websites, pending, refresh } = await useLazyAsyncData('websites', 
 const filteredWebsites = computed(() => {
   if (!websites.value) return []
   if (!searchQuery.value) return websites.value
-  
-  return websites.value.filter(website => 
+
+  return websites.value.filter(website =>
     website.domain.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
@@ -192,19 +163,19 @@ const deleteWebsite = async (id: string) => {
 
 const createWebsite = async () => {
   if (!newWebsite.value.domain) return
-  
+
   creating.value = true
-  
+
   try {
     console.log('创建网站:', newWebsite.value)
-    
+
     newWebsite.value = {
       domain: '',
       root: '/var/www/html',
       php: '8.2',
       ssl: false
     }
-    
+
     showCreateWebsite.value = false
     await refresh()
   } catch (error) {
@@ -220,16 +191,24 @@ const createWebsite = async () => {
   width: 16rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 
-.space-y-3 > * + * {
+.space-y-3>*+* {
   margin-top: 0.75rem;
 }
 
-.space-y-1 > * + * {
+.space-y-1>*+* {
   margin-top: 0.25rem;
+}
+
+.websites-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  transition: all 0.3s ease;
 }
 
 .website-card {
@@ -238,7 +217,7 @@ const createWebsite = async () => {
 
 .website-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .grid {

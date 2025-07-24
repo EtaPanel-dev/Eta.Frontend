@@ -12,7 +12,10 @@
       </div>
     </div>
 
-    <DataTable :value="filteredImages" :paginator="true" :rows="10" responsive-layout="scroll" :loading="pending">
+    <DataTable :value="filteredImages" :paginator="true" :rows="8" :rowsPerPageOptions="[5, 8, 15, 30]"
+      responsive-layout="scroll" :loading="pending"
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+      current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录">
       <Column field="repository" header="镜像">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
@@ -39,7 +42,8 @@
             <Button icon="pi pi-eye" size="small" text @click="inspectImage(slotProps.data.id)" />
             <Button icon="pi pi-upload" size="small" text @click="pushImage(slotProps.data.id)" />
             <Button icon="pi pi-copy" size="small" text @click="tagImage(slotProps.data.id)" />
-            <Button icon="pi pi-trash" size="small" text severity="danger" :disabled="slotProps.data.containers > 0" @click="deleteImage(slotProps.data.id)" />
+            <Button icon="pi pi-trash" size="small" text severity="danger" :disabled="slotProps.data.containers > 0"
+              @click="deleteImage(slotProps.data.id)" />
           </div>
         </template>
       </Column>
@@ -184,8 +188,8 @@ const { data: images, pending, refresh } = await useLazyAsyncData('images', () =
 const filteredImages = computed(() => {
   if (!images.value) return []
   if (!searchQuery.value) return images.value
-  
-  return images.value.filter(image => 
+
+  return images.value.filter(image =>
     image.repository.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
     image.tag.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
@@ -222,12 +226,12 @@ const deleteImage = async (id: string) => {
 
 const pullImage = async () => {
   if (!pullImageName.value) return
-  
+
   pulling.value = true
-  
+
   try {
     console.log('拉取镜像:', pullImageName.value)
-    
+
     pullImageName.value = ''
     showPullImage.value = false
     await refresh()
@@ -248,7 +252,7 @@ const pullImage = async () => {
   width: 16rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 
