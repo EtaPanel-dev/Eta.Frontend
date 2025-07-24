@@ -771,7 +771,7 @@ body {
 }
 
 .progress-bar-fallback::after {
-  content: '' !important;
+  content: "" !important;
   position: absolute !important;
   left: 0 !important;
   top: 0 !important;
@@ -780,7 +780,7 @@ body {
   border-radius: 0.25rem !important;
   width: 0% !important;
   transition: width 0.3s ease !important;
-}/*
+} /*
  日志级别颜色工具类 */
 .text-red-600 {
   color: #dc2626 !important;
@@ -810,7 +810,8 @@ body {
 
 .log-stat-item:hover {
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* 圆点图标大小调整 */
@@ -823,3 +824,34 @@ body {
   font-size: 0.375rem !important;
   margin-right: 0.25rem !important;
 }
+
+/* 针对所有滚动条 */
+::-webkit-scrollbar {
+  width: 6px; /* 滚动条的宽度 */
+  height: 10px; /* 滚动条的高度，用于横向滚动条 */
+}
+
+/* 滚动条的轨道 */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* 轨道的背景色 */
+  border-radius: 10px; /* 轨道圆角 */
+}
+
+/* 滚动条的滑块 */
+::-webkit-scrollbar-thumb {
+  background: #888; /* 滑块的背景色 */
+  border-radius: 10px; /* 滑块圆角 */
+}
+
+/* 滑块在悬停时的样式 */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* 悬停时的滑块背景色 */
+}
+
+/* 还可以为 PrimeVue 的特定组件添加样式 */
+/* 比如为 p-dialog 的内容区域添加滚动条样式 */
+.p-dialog .p-dialog-content::-webkit-scrollbar-thumb {
+  background-color: #66b5ff;
+}
+
+/* 如果你使用 OverlayScrollbar 这样的第三方库，可以参考其文档进行自定义 */
