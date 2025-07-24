@@ -1,0 +1,825 @@
+/* 全局样式 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Flex 布局工具类 */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+/* 文本样式 */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* 颜色 */
+.text-primary {
+  color: #3b82f6;
+}
+
+.text-gray-300 {
+  color: #d1d5db;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-green-400 {
+  color: #4ade80;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+/* 间距 */
+.p-3 {
+  padding: 0.75rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.py-12 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.ml-4 {
+  margin-left: 1rem;
+}
+
+.gap-1 {
+  gap: 0.25rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+/* 尺寸 */
+.w-full {
+  width: 100%;
+}
+
+.w-48 {
+  width: 12rem;
+}
+
+.w-64 {
+  width: 16rem;
+}
+
+.h-2 {
+  height: 0.5rem;
+}
+
+.h-3 {
+  height: 0.75rem;
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+}
+
+/* 边框和圆角 */
+.border {
+  border-width: 1px;
+  border-color: #e5e7eb;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* 其他工具类 */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+/* 网格布局 */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* 响应式网格 */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* 间距工具类 */
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* 背景颜色 */
+.bg-red-500 {
+  background-color: #ef4444;
+}
+
+.bg-yellow-500 {
+  background-color: #eab308;
+}
+
+.bg-green-500 {
+  background-color: #22c55e;
+}
+
+/* 动画 */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 系统信息样式 */
+.system-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metric-card {
+  border: 1px solid #e2e8f0;
+}
+
+.metric-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.placeholder-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+/* 终端样式 */
+.terminal-window {
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Courier New", monospace;
+}
+
+.terminal-header {
+  background: #2d2d2d;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #404040;
+}
+
+.terminal-body {
+  padding: 1rem;
+  min-height: 400px;
+  background: #1a1a1a;
+}
+
+.terminal-output {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.terminal-line {
+  margin-bottom: 0.5rem;
+}
+
+/* PrimeVue 组件样式修复 */
+.p-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.p-card .p-card-header {
+  padding: 1.25rem 1.25rem 0 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 0;
+}
+
+.p-card .p-card-content {
+  padding: 1.25rem;
+}
+
+.p-card .p-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.p-card .p-card-body {
+  padding: 0;
+}
+
+/* 修复卡片标题对齐 */
+.p-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.p-card-title {
+  flex: 1;
+}
+
+.p-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.p-button.p-button-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.p-button.p-button-text {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #3b82f6;
+}
+
+.p-button.p-button-text:hover {
+  background: #f3f4f6;
+}
+
+.p-button.p-button-outlined {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.p-button.p-button-outlined:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.p-inputtext {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  color: #374151;
+}
+
+.p-inputtext:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.p-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  color: #374151;
+  resize: vertical;
+}
+
+.p-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.p-datatable {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+}
+
+.p-datatable .p-datatable-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: #f9fafb;
+}
+
+.p-progressbar {
+  height: 0.5rem;
+  background: #e5e7eb;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.p-progressbar .p-progressbar-value {
+  background: #3b82f6;
+  height: 100%;
+  border-radius: 0.25rem;
+  transition: width 0.3s ease;
+}
+
+.p-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+}
+
+.p-tag.p-tag-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.p-tag.p-tag-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.p-tag.p-tag-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.p-tag.p-tag-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.p-dialog {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.p-dialog .p-dialog-header {
+  padding: 1.25rem 1.25rem 0 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 1.25rem;
+}
+
+.p-dialog .p-dialog-footer {
+  padding: 0 1.25rem 1.25rem 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.p-divider.p-divider-vertical {
+  width: 1px;
+  height: 1rem;
+  background: #e5e7eb;
+  margin: 0 0.5rem;
+}
+
+.p-breadcrumb {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.p-breadcrumb .p-breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.p-fileupload {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  background: #f9fafb;
+}
+
+.p-fileupload:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+/* 确保图标正确显示 */
+.pi {
+  font-family: "primeicons" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 全局卡片标题与边框间距修复 - 使用更高优先级 */
+.p-card {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+}
+
+.p-card .p-card-header,
+.p-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 1.25rem 1.5rem 1rem 1.5rem !important; /* 精确控制上下左右间距 */
+  border-bottom: 1px solid #f1f5f9 !important;
+  background: #fafbfc !important;
+  margin: 0 !important;
+  min-height: auto !important;
+}
+
+.p-card .p-card-header .p-card-title,
+.p-card-header .p-card-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  line-height: 1.5 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex: 1 !important;
+}
+
+/* 卡片内容区域 */
+.p-card .p-card-content,
+.p-card-content {
+  padding: 1.5rem !important;
+  margin: 0 !important;
+}
+
+/* 卡片主体 */
+.p-card .p-card-body,
+.p-card-body {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 修复标题容器中的按钮对齐 */
+.p-card-header .flex {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.p-card-header .p-button {
+  margin: 0 !important;
+  padding: 0.5rem !important;
+  min-width: auto !important;
+}
+
+/* 特殊处理：没有标题的卡片 */
+.p-card:not(:has(.p-card-header)) .p-card-content {
+  padding: 1.75rem 1.5rem !important;
+}
+
+/* 确保卡片悬停效果 */
+.p-card:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* 修复表格卡片的特殊情况 */
+.p-card .p-datatable .p-datatable-header {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* 确保卡片内第一个元素没有多余的上边距 */
+.p-card-content > *:first-child {
+  margin-top: 0 !important;
+}
+
+.p-card-content > .grid:first-child,
+.p-card-content > .space-y-3:first-child,
+.p-card-content > .space-y-4:first-child {
+  margin-top: 0 !important;
+}
+/* 
+修复卡片标题文字间距和进度条样式 */
+.p-card-title {
+  letter-spacing: 0.025em !important;
+  word-spacing: 0.1em !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* 进度条全局样式修复 */
+.p-progressbar {
+  height: 0.5rem !important;
+  background: #e5e7eb !important;
+  border-radius: 0.25rem !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+.p-progressbar .p-progressbar-value {
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  height: 100% !important;
+  border-radius: 0.25rem !important;
+  transition: width 0.3s ease !important;
+  border: none !important;
+}
+
+/* 确保进度条文字完全隐藏 */
+.p-progressbar .p-progressbar-label,
+.p-progressbar .p-progressbar-value-animate {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* 修复中文字体显示 */
+.p-card-title,
+.text-sm,
+.text-lg,
+.text-xs {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
+    sans-serif !important;
+}
+
+/* 优化卡片标题在不同语言下的显示 */
+.p-card-title {
+  line-height: 1.6 !important;
+  font-weight: 600 !important;
+}
+
+/* 修复表格中进度条的高度 */
+.p-datatable .p-progressbar {
+  height: 0.5rem !important;
+  min-height: 0.5rem !important;
+}
+
+/* 确保所有进度条都隐藏数值显示 */
+.p-progressbar[show-value="false"] .p-progressbar-label,
+.p-progressbar:not([show-value="true"]) .p-progressbar-label {
+  display: none !important;
+}
+/* 强制隐藏进度条标签以避免水合错误 */
+.p-progressbar .p-progressbar-label {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* 确保进度条在服务端渲染时也隐藏标签 */
+.p-progressbar[show-value="false"] .p-progressbar-label,
+.p-progressbar:not([show-value="true"]) .p-progressbar-label {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* 进度条fallback样式 - 全局 */
+.progress-bar-fallback {
+  height: 0.5rem !important;
+  background: #e5e7eb !important;
+  border-radius: 0.25rem !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.progress-bar-fallback::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  border-radius: 0.25rem !important;
+  width: 0% !important;
+  transition: width 0.3s ease !important;
+}/*
+ 日志级别颜色工具类 */
+.text-red-600 {
+  color: #dc2626 !important;
+}
+
+.text-yellow-600 {
+  color: #d97706 !important;
+}
+
+.text-blue-600 {
+  color: #2563eb !important;
+}
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.text-xs {
+  font-size: 0.75rem !important;
+  line-height: 1rem !important;
+}
+
+/* 日志统计项动画效果 */
+.log-stat-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.log-stat-item:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 圆点图标大小调整 */
+.pi-circle-fill.text-xs {
+  font-size: 0.5rem !important;
+}
+
+/* 日志级别标签圆点 */
+.log-level .pi-circle-fill {
+  font-size: 0.375rem !important;
+  margin-right: 0.25rem !important;
+}

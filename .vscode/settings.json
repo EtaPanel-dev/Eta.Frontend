@@ -1,0 +1,40 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.associations": {
+    "*.vue": "vue"
+  },
+  "emmet.includeLanguages": {
+    "vue": "html"
+  },
+  "vue.server.hybridMode": true,
+  "vue.complete.casing.tags": "kebab",
+  "vue.complete.casing.props": "camel",
+  "nuxt.isNuxtApp": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.nuxt": true,
+    "**/dist": true,
+    "**/.output": true
+  },
+  "files.exclude": {
+    "**/.nuxt": true,
+    "**/dist": true,
+    "**/.output": true
+  },
+  "terminal.integrated.env.windows": {
+    "NODE_ENV": "development"
+  },
+  "terminal.integrated.env.osx": {
+    "NODE_ENV": "development"
+  },
+  "terminal.integrated.env.linux": {
+    "NODE_ENV": "development"
+  }
+}
