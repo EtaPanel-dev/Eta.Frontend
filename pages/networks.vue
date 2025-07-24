@@ -11,7 +11,10 @@
       </div>
     </div>
 
-    <DataTable :value="filteredNetworks" :paginator="true" :rows="10" responsive-layout="scroll" :loading="pending">
+    <DataTable :value="filteredNetworks" :paginator="true" :rows="8" :rowsPerPageOptions="[5, 8, 15, 25]"
+      responsive-layout="scroll" :loading="pending"
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+      current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录">
       <Column field="name" header="网络名称">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
@@ -30,7 +33,8 @@
           <div class="flex gap-1">
             <Button icon="pi pi-eye" size="small" text @click="inspectNetwork(slotProps.data.id)" />
             <Button icon="pi pi-link" size="small" text @click="connectContainer(slotProps.data.id)" />
-            <Button icon="pi pi-trash" size="small" text severity="danger" :disabled="slotProps.data.containers > 0" @click="deleteNetwork(slotProps.data.id)" />
+            <Button icon="pi pi-trash" size="small" text severity="danger" :disabled="slotProps.data.containers > 0"
+              @click="deleteNetwork(slotProps.data.id)" />
           </div>
         </template>
       </Column>
@@ -45,7 +49,8 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">驱动</label>
-          <Dropdown v-model="newNetwork.driver" :options="driverOptions" option-label="label" option-value="value" class="w-full" placeholder="选择驱动" />
+          <Dropdown v-model="newNetwork.driver" :options="driverOptions" option-label="label" option-value="value"
+            class="w-full" placeholder="选择驱动" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">子网</label>
@@ -140,8 +145,8 @@ const { data: networks, pending, refresh } = await useLazyAsyncData('networks', 
 const filteredNetworks = computed(() => {
   if (!networks.value) return []
   if (!searchQuery.value) return networks.value
-  
-  return networks.value.filter(network => 
+
+  return networks.value.filter(network =>
     network.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
@@ -165,12 +170,12 @@ const deleteNetwork = async (id: string) => {
 
 const createNetwork = async () => {
   if (!newNetwork.value.name) return
-  
+
   creating.value = true
-  
+
   try {
     console.log('创建网络:', newNetwork.value)
-    
+
     newNetwork.value = {
       name: '',
       driver: 'bridge',
@@ -178,7 +183,7 @@ const createNetwork = async () => {
       gateway: '',
       internal: false
     }
-    
+
     showCreateNetwork.value = false
     await refresh()
   } catch (error) {
@@ -198,7 +203,7 @@ const createNetwork = async () => {
   width: 16rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 </style>

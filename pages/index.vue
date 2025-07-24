@@ -2,25 +2,18 @@
   <div class="dashboard-content">
     <!-- 系统概览卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Card
-        v-for="metric in systemMetrics"
-        :key="metric.title"
-        class="metric-card"
-      >
+      <Card v-for="metric in systemMetrics" :key="metric.title" class="metric-card">
         <template #content>
           <div class="flex items-center justify-between">
             <div>
-              <div class="text-sm text-gray-600 mb-1">{{ metric.title }}</div>
-              <div class="text-2xl font-bold">{{ metric.value }}</div>
-              <div class="text-xs text-gray-500">{{ metric.subtitle }}</div>
+              <div class="text-sm text-secondary-content mb-1">{{ metric.title }}</div>
+              <div class="text-2xl font-bold text-primary-content">{{ metric.value }}</div>
+              <div class="text-xs text-tertiary-content">{{ metric.subtitle }}</div>
             </div>
-            <div
-              class="metric-icon"
-              :style="{
-                backgroundColor: metric.color + '20',
-                color: metric.color,
-              }"
-            >
+            <div class="metric-icon" :style="{
+              backgroundColor: metric.color + '20',
+              color: metric.color,
+            }">
               <i :class="metric.icon" />
             </div>
           </div>
@@ -35,11 +28,11 @@
         <template #content>
           <div class="cpu-chart">
             <div class="flex items-center justify-between mb-4">
-              <span class="text-sm">当前使用率</span>
-              <span class="text-lg font-bold">{{ cpuUsage }}%</span>
+              <span class="text-sm text-secondary-content">当前使用率</span>
+              <span class="text-lg font-bold text-primary-content">{{ cpuUsage }}%</span>
             </div>
             <CustomProgressBar :value="cpuUsage" class-name="mb-2" />
-            <div class="grid grid-cols-4 gap-2 text-xs text-gray-600">
+            <div class="grid grid-cols-4 gap-2 text-xs text-secondary-content">
               <div>1分钟: 0.8</div>
               <div>5分钟: 1.2</div>
               <div>15分钟: 1.5</div>
@@ -55,9 +48,7 @@
           <div class="memory-chart">
             <div class="flex items-center justify-between mb-4">
               <span class="text-sm">已使用</span>
-              <span class="text-lg font-bold"
-                >{{ memoryUsed }} / {{ memoryTotal }}</span
-              >
+              <span class="text-lg font-bold">{{ memoryUsed }} / {{ memoryTotal }}</span>
             </div>
             <CustomProgressBar :value="memoryUsage" class-name="mb-2" />
             <div class="grid grid-cols-2 gap-4 text-xs text-gray-600">
@@ -81,10 +72,7 @@
           <Column field="usage" header="使用率">
             <template #body="slotProps">
               <div class="flex items-center gap-2">
-                <CustomProgressBar
-                  :value="slotProps.data.usagePercent"
-                  class-name="flex-1 h-2"
-                />
+                <CustomProgressBar :value="slotProps.data.usagePercent" class-name="flex-1 h-2" />
                 <span class="text-sm">{{ slotProps.data.usage }}</span>
               </div>
             </template>
@@ -100,27 +88,16 @@
         <template #title>
           <div class="flex items-center justify-between">
             <span>运行中的容器</span>
-            <Button
-              icon="pi pi-plus"
-              size="small"
-              text
-              @click="navigateToContainers"
-            />
+            <Button icon="pi pi-plus" size="small" text @click="navigateToContainers" />
           </div>
         </template>
         <template #content>
-          <div
-            v-if="runningContainers.length === 0"
-            class="text-center py-4 text-gray-500"
-          >
+          <div v-if="runningContainers.length === 0" class="text-center py-4 text-gray-500">
             暂无运行中的容器
           </div>
           <div v-else class="space-y-3">
-            <div
-              v-for="container in runningContainers"
-              :key="container.id"
-              class="flex items-center justify-between p-3 border rounded-lg"
-            >
+            <div v-for="container in runningContainers" :key="container.id"
+              class="flex items-center justify-between p-3 border rounded-lg">
               <div class="flex items-center gap-3">
                 <Tag severity="success" value="运行中" />
                 <div>
@@ -141,16 +118,11 @@
         <template #title>系统服务状态</template>
         <template #content>
           <div class="space-y-3">
-            <div
-              v-for="service in systemServices"
-              :key="service.name"
-              class="flex items-center justify-between p-3 border rounded-lg"
-            >
+            <div v-for="service in systemServices" :key="service.name"
+              class="flex items-center justify-between p-3 border rounded-lg">
               <div class="flex items-center gap-3">
-                <Tag
-                  :severity="service.status === 'active' ? 'success' : 'danger'"
-                  :value="service.status === 'active' ? '运行中' : '已停止'"
-                />
+                <Tag :severity="service.status === 'active' ? 'success' : 'danger'"
+                  :value="service.status === 'active' ? '运行中' : '已停止'" />
                 <div>
                   <div class="font-medium">{{ service.name }}</div>
                   <div class="text-sm text-gray-600">
@@ -159,13 +131,8 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <Button
-                  :icon="
-                    service.status === 'active' ? 'pi pi-stop' : 'pi pi-play'
-                  "
-                  size="small"
-                  text
-                />
+                <Button :icon="service.status === 'active' ? 'pi pi-stop' : 'pi pi-play'
+                  " size="small" text />
                 <Button icon="pi pi-refresh" size="small" text />
               </div>
             </div>
@@ -309,8 +276,18 @@ useHead({
 </script>
 
 <style scoped>
+/* 仪表板页面样式 - 自动跟随系统主题 */
+.dashboard-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
 .metric-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
 }
 
 .metric-icon {
@@ -321,6 +298,7 @@ useHead({
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .grid {
@@ -356,7 +334,7 @@ useHead({
   }
 }
 
-.space-y-3 > * + * {
+.space-y-3>*+* {
   margin-top: 0.75rem;
 }
 
@@ -368,34 +346,44 @@ useHead({
   flex: 1;
 }
 
-/* 卡片标题与边框间距修复 */
+/* 卡片标题与边框间距修复 - 自动跟随系统主题 */
 :deep(.p-card) {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
+  background: var(--bg-primary);
+  transition: all 0.3s ease;
 }
 
 :deep(.p-card-header) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem 1rem 1.5rem; /* 调整顶部和底部内边距 */
-  border-bottom: 1px solid #f1f5f9;
-  background: #fafbfc;
-  margin: 0; /* 确保没有外边距 */
+  padding: 1.25rem 1.5rem 1rem 1.5rem;
+  /* 调整顶部和底部内边距 */
+  border-bottom: 1px solid var(--border-tertiary);
+  background: var(--bg-secondary);
+  margin: 0;
+  /* 确保没有外边距 */
+  transition: all 0.3s ease;
 }
 
 :deep(.p-card-title) {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 :deep(.p-card-content) {
   padding: 1.5rem;
-  margin: 0; /* 确保没有外边距 */
+  margin: 0;
+  /* 确保没有外边距 */
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 :deep(.p-card-body) {
@@ -411,16 +399,19 @@ useHead({
 }
 
 .metric-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 .metric-card :deep(.p-card-content) {
-  padding: 1.75rem 1.5rem; /* 增加内边距使内容更舒适 */
+  padding: 1.75rem 1.5rem;
+  /* 增加内边距使内容更舒适 */
 }
 
 .metric-card :deep(.p-card-header) {
-  display: none; /* 隐藏系统概览卡片的标题栏 */
+  display: none;
+  /* 隐藏系统概览卡片的标题栏 */
 }
 
 /* 确保所有卡片标题区域的一致性 */
@@ -437,18 +428,20 @@ useHead({
 }
 
 /* 优化卡片内容区域的间距 */
-:deep(.p-card-content) > .space-y-3 > *:first-child {
+:deep(.p-card-content)>.space-y-3>*:first-child {
   margin-top: 0;
 }
 
-:deep(.p-card-content) > .grid:first-child {
+:deep(.p-card-content)>.grid:first-child {
   margin-top: 0;
 }
 
 /* 修复卡片标题文字间距 */
 :deep(.p-card-title) {
-  letter-spacing: 0.025em !important; /* 增加字母间距 */
-  word-spacing: 0.1em !important; /* 增加单词间距 */
+  letter-spacing: 0.025em !important;
+  /* 增加字母间距 */
+  word-spacing: 0.1em !important;
+  /* 增加单词间距 */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
     sans-serif !important;
@@ -492,8 +485,8 @@ useHead({
   margin-top: 0.75rem;
 }
 
-.cpu-chart .grid > div,
-.memory-chart .grid > div {
+.cpu-chart .grid>div,
+.memory-chart .grid>div {
   padding: 0.25rem 0;
 }
 
@@ -510,7 +503,8 @@ useHead({
 
 /* 优化卡片标题区域的整体布局 */
 :deep(.p-card-header) {
-  min-height: 3.5rem; /* 确保标题区域有足够高度 */
+  min-height: 3.5rem;
+  /* 确保标题区域有足够高度 */
   align-items: center;
 }
 

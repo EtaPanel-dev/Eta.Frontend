@@ -17,7 +17,7 @@
               <div class="w-3 h-3 bg-red-500 rounded-full" />
               <div class="w-3 h-3 bg-yellow-500 rounded-full" />
               <div class="w-3 h-3 bg-green-500 rounded-full" />
-              <span class="ml-4 text-sm text-gray-600">root@server:~</span>
+              <span class="ml-4 text-sm text-secondary-content">root@server:~</span>
             </div>
           </div>
           <div class="terminal-body">
@@ -26,14 +26,14 @@
                 <span class="text-green-400">root@server:~$</span>
                 <span class="ml-2">ls -la</span>
               </div>
-              <div class="terminal-line text-gray-300">
+              <div class="terminal-line text-tertiary-content">
                 total 24<br>
-                drwxr-xr-x  6 root root 4096 Jan 20 10:30 .<br>
-                drwxr-xr-x  3 root root 4096 Jan 15 14:20 ..<br>
-                -rw-r--r--  1 root root  220 Jan 15 14:20 .bash_logout<br>
-                -rw-r--r--  1 root root 3771 Jan 15 14:20 .bashrc<br>
-                drwxr-xr-x  3 root root 4096 Jan 20 10:30 docker<br>
-                -rw-r--r--  1 root root  807 Jan 15 14:20 .profile
+                drwxr-xr-x 6 root root 4096 Jan 20 10:30 .<br>
+                drwxr-xr-x 3 root root 4096 Jan 15 14:20 ..<br>
+                -rw-r--r-- 1 root root 220 Jan 15 14:20 .bash_logout<br>
+                -rw-r--r-- 1 root root 3771 Jan 15 14:20 .bashrc<br>
+                drwxr-xr-x 3 root root 4096 Jan 20 10:30 docker<br>
+                -rw-r--r-- 1 root root 807 Jan 15 14:20 .profile
               </div>
               <div class="terminal-line">
                 <span class="text-green-400">root@server:~$</span>
@@ -125,9 +125,12 @@ useHead({
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -152,5 +155,14 @@ useHead({
 
 :deep(.p-card-content) {
   padding: 1.25rem;
+}
+</style>
+<style scoped>
+.terminal-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  transition: all 0.3s ease;
 }
 </style>

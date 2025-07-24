@@ -11,7 +11,10 @@
       </div>
     </div>
 
-    <DataTable :value="filteredCronJobs" :paginator="true" :rows="10" responsive-layout="scroll" :loading="pending">
+    <DataTable :value="filteredCronJobs" :paginator="true" :rows="8" :rowsPerPageOptions="[5, 8, 15, 25]"
+      responsive-layout="scroll" :loading="pending"
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+      current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录">
       <Column field="name" header="任务名称">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
@@ -182,8 +185,8 @@ const { data: cronJobs, pending, refresh } = await useLazyAsyncData('cron', () =
 const filteredCronJobs = computed(() => {
   if (!cronJobs.value) return []
   if (!searchQuery.value) return cronJobs.value
-  
-  return cronJobs.value.filter(job => 
+
+  return cronJobs.value.filter(job =>
     job.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
     job.command.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
@@ -221,12 +224,12 @@ const setQuickCron = (expression: string) => {
 
 const createCron = async () => {
   if (!newCron.value.name || !newCron.value.command) return
-  
+
   creating.value = true
-  
+
   try {
     console.log('创建计划任务:', newCron.value)
-    
+
     newCron.value = {
       name: '',
       command: '',
@@ -237,7 +240,7 @@ const createCron = async () => {
       weekday: '*',
       enabled: true
     }
-    
+
     showCreateCron.value = false
     await refresh()
   } catch (error) {
@@ -257,7 +260,7 @@ const createCron = async () => {
   width: 16rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 

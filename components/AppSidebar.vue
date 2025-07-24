@@ -8,19 +8,10 @@
     </div>
 
     <div class="sidebar-content">
-      <div
-        v-for="section in menuSections"
-        :key="section.title"
-        class="nav-section"
-      >
+      <div v-for="section in menuSections" :key="section.title" class="nav-section">
         <div class="nav-title">{{ section.title }}</div>
-        <div
-          v-for="item in section.items"
-          :key="item.key"
-          class="nav-item"
-          :class="{ active: props.activeMenu === item.key }"
-          @click="handleMenuClick(item.key)"
-        >
+        <div v-for="item in section.items" :key="item.key" class="nav-item"
+          :class="{ active: props.activeMenu === item.key }" @click="handleMenuClick(item.key)">
           <i :class="item.icon" />
           <span>{{ item.label }}</span>
         </div>
@@ -97,17 +88,32 @@ const menuSections: MenuSection[] = [
 <style scoped>
 .layout-sidebar {
   width: 260px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-primary);
   flex-shrink: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
 
 .sidebar-header {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-primary);
   flex-shrink: 0;
+  transition: border-color 0.3s ease;
+}
+
+.sidebar-header .flex {
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.sidebar-header .text-primary {
+  color: var(--accent-primary);
 }
 
 .sidebar-content {
@@ -123,11 +129,12 @@ const menuSections: MenuSection[] = [
 .nav-title {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0 1rem;
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .nav-item {
@@ -139,17 +146,17 @@ const menuSections: MenuSection[] = [
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #64748b;
+  color: var(--text-secondary);
   position: relative;
 }
 
 .nav-item:hover {
-  background-color: #f1f5f9;
-  color: #334155;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
-  background-color: #3b82f6;
+  background-color: var(--accent-primary);
   color: white;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
@@ -158,5 +165,24 @@ const menuSections: MenuSection[] = [
 .nav-item i {
   width: 1.25rem;
   text-align: center;
+  transition: color 0.3s ease;
+}
+
+/* 滚动条样式 - 自动跟随主题 */
+.sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: var(--border-primary);
 }
 </style>

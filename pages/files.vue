@@ -5,11 +5,7 @@
         <Breadcrumb :model="breadcrumbItems" />
       </div>
       <div class="flex gap-2">
-        <Button
-          label="上传文件"
-          icon="pi pi-upload"
-          @click="showUpload = true"
-        />
+        <Button label="上传文件" icon="pi pi-upload" @click="showUpload = true" />
         <Button label="新建文件夹" icon="pi pi-folder-plus" outlined />
         <Button label="新建文件" icon="pi pi-file-plus" outlined />
         <Button icon="pi pi-refresh" outlined @click="refreshFiles" />
@@ -21,9 +17,7 @@
         <DataTable :value="files" :loading="pending" responsive-layout="scroll">
           <Column field="name" header="名称">
             <template #body="slotProps">
-              <div
-                class="flex items-center gap-2 cursor-pointer hover:text-blue-600"
-              >
+              <div class="flex items-center gap-2 cursor-pointer hover:text-primary">
                 <i :class="getFileIcon(slotProps.data)" />
                 <span>{{ slotProps.data.name }}</span>
               </div>
@@ -38,12 +32,7 @@
               <div class="flex gap-1">
                 <Button icon="pi pi-download" size="small" text />
                 <Button icon="pi pi-pencil" size="small" text />
-                <Button
-                  icon="pi pi-trash"
-                  size="small"
-                  text
-                  severity="danger"
-                />
+                <Button icon="pi pi-trash" size="small" text severity="danger" />
               </div>
             </template>
           </Column>
@@ -51,12 +40,7 @@
       </template>
     </Card>
 
-    <Dialog
-      v-model:visible="showUpload"
-      modal
-      header="上传文件"
-      :style="{ width: '600px' }"
-    >
+    <Dialog v-model:visible="showUpload" modal header="上传文件" :style="{ width: '600px' }">
       <div class="text-center p-8">
         <i class="pi pi-cloud-upload text-4xl text-gray-400 mb-4" />
         <p class="text-gray-600">文件上传功能</p>

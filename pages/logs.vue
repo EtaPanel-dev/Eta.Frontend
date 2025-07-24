@@ -2,22 +2,10 @@
   <div class="logs-content">
     <div class="flex justify-between items-center mb-4">
       <div class="flex gap-2">
-        <Dropdown 
-          v-model="selectedLogType" 
-          :options="logTypes" 
-          option-label="label" 
-          option-value="value" 
-          placeholder="选择日志类型"
-          @change="loadLogs"
-        />
-        <Dropdown 
-          v-model="selectedLevel" 
-          :options="logLevels" 
-          option-label="label" 
-          option-value="value" 
-          placeholder="日志级别"
-          @change="filterLogs"
-        />
+        <Dropdown v-model="selectedLogType" :options="logTypes" option-label="label" option-value="value"
+          placeholder="选择日志类型" @change="loadLogs" />
+        <Dropdown v-model="selectedLevel" :options="logLevels" option-label="label" option-value="value"
+          placeholder="日志级别" @change="filterLogs" />
       </div>
       <div class="flex gap-2">
         <InputText v-model="searchQuery" placeholder="搜索日志..." class="w-64" />
@@ -32,7 +20,8 @@
           <span>{{ getCurrentLogTitle() }}</span>
           <div class="flex gap-2">
             <Button label="下载日志" icon="pi pi-download" size="small" outlined />
-            <Button label="实时监控" icon="pi pi-eye" size="small" :severity="isRealTime ? 'success' : 'secondary'" @click="toggleRealTime" />
+            <Button label="实时监控" icon="pi pi-eye" size="small" :severity="isRealTime ? 'success' : 'secondary'"
+              @click="toggleRealTime" />
           </div>
         </div>
       </template>
@@ -62,14 +51,10 @@
               </span>
             </div>
           </div>
-          
+
           <div class="log-container">
-            <div 
-              v-for="(log, index) in filteredLogs" 
-              :key="index"
-              class="log-entry"
-              :class="getLogLevelClass(log.level)"
-            >
+            <div v-for="(log, index) in filteredLogs" :key="index" class="log-entry"
+              :class="getLogLevelClass(log.level)">
               <div class="log-header">
                 <span class="log-time">{{ log.timestamp }}</span>
                 <span class="log-level" :class="getLogLevelClass(log.level)">
@@ -84,7 +69,7 @@
               </div>
             </div>
           </div>
-          
+
           <div v-if="filteredLogs.length === 0" class="text-center py-8 text-gray-500">
             <i class="pi pi-file-text text-4xl mb-4" />
             <p>暂无日志数据</p>
@@ -182,24 +167,24 @@ const { data: logs, pending, refresh } = await useLazyAsyncData('logs', () => {
 // 过滤日志
 const filteredLogs = computed(() => {
   if (!logs.value) return []
-  
+
   let filtered = logs.value
-  
+
   // 按级别过滤
   if (selectedLevel.value !== 'all') {
     filtered = filtered.filter(log => log.level === selectedLevel.value)
   }
-  
+
   // 按搜索关键词过滤
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(log => 
+    filtered = filtered.filter(log =>
       log.message.toLowerCase().includes(query) ||
       log.source.toLowerCase().includes(query) ||
       (log.details && log.details.toLowerCase().includes(query))
     )
   }
-  
+
   return filtered
 })
 
@@ -253,6 +238,14 @@ const toggleRealTime = () => {
 </script>
 
 <style scoped>
+.logs-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
 .w-64 {
   width: 16rem;
 }

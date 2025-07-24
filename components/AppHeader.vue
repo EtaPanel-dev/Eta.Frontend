@@ -21,41 +21,20 @@
         <div class="user-actions">
           <!-- 通知按钮 -->
           <div class="action-item">
-            <Button
-              icon="pi pi-bell"
-              text
-              rounded
-              class="notification-btn"
-              @click="toggleNotifications"
-              :badge="
-                notificationCount > 0 ? notificationCount.toString() : undefined
-              "
-              badge-class="notification-badge"
-            />
+            <Button icon="pi pi-bell" text rounded class="notification-btn" @click="toggleNotifications" :badge="notificationCount > 0 ? notificationCount.toString() : undefined
+              " badge-class="notification-badge" />
             <!-- 通知下拉菜单 -->
-            <div
-              v-if="showNotifications"
-              class="dropdown-menu notification-menu"
-            >
+            <div v-if="showNotifications" class="dropdown-menu notification-menu">
               <div class="menu-header">
                 <span class="menu-title">通知</span>
-                <Button
-                  icon="pi pi-times"
-                  text
-                  size="small"
-                  @click="showNotifications = false"
-                />
+                <Button icon="pi pi-times" text size="small" @click="showNotifications = false" />
               </div>
               <div class="menu-content">
                 <div v-if="notifications.length === 0" class="empty-state">
                   暂无新通知
                 </div>
                 <div v-else>
-                  <div
-                    v-for="notification in notifications"
-                    :key="notification.id"
-                    class="notification-item"
-                  >
+                  <div v-for="notification in notifications" :key="notification.id" class="notification-item">
                     <div class="notification-content">
                       <div class="notification-title">
                         {{ notification.title }}
@@ -72,13 +51,7 @@
 
           <!-- 用户菜单 -->
           <div class="action-item">
-            <Button
-              icon="pi pi-user"
-              text
-              rounded
-              class="user-btn"
-              @click="toggleUserMenu"
-            />
+            <Button icon="pi pi-user" text rounded class="user-btn" @click="toggleUserMenu" />
             <!-- 用户下拉菜单 -->
             <div v-if="showUserMenu" class="dropdown-menu user-menu">
               <div class="menu-header">
@@ -102,10 +75,7 @@
                   <span>系统设置</span>
                 </div>
                 <div class="menu-divider" />
-                <div
-                  class="menu-item logout"
-                  @click="handleUserAction('logout')"
-                >
+                <div class="menu-item logout" @click="handleUserAction('logout')">
                   <i class="pi pi-sign-out" />
                   <span>退出登录</span>
                 </div>
@@ -167,12 +137,15 @@ const handleUserAction = (action: string) => {
   switch (action) {
     case "profile":
       // 跳转到个人资料页面
+      console.log('跳转到个人资料页面');
       break;
     case "settings":
       // 跳转到系统设置页面
+      navigateTo('/settings');
       break;
     case "logout":
       // 处理退出登录
+      console.log('处理退出登录');
       break;
   }
 };
@@ -197,15 +170,20 @@ onUnmounted(() => {
 
 <style scoped>
 .main-header {
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
   padding: 0 1.5rem;
   height: 60px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 260px;
+  right: 0;
+  z-index: 999;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 }
 
 .header-content {
@@ -223,7 +201,8 @@ onUnmounted(() => {
 .page-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .header-right {
@@ -238,18 +217,20 @@ onUnmounted(() => {
   align-items: center;
   gap: 0;
   padding: 0.5rem 1rem;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary);
   margin-left: auto;
+  transition: all 0.3s ease;
 }
 
 .info-item {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 500;
   white-space: nowrap;
   padding: 0 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .info-item:first-child {
@@ -263,8 +244,9 @@ onUnmounted(() => {
 .info-divider {
   width: 1px;
   height: 1rem;
-  background: #cbd5e1;
+  background: var(--border-secondary);
   flex-shrink: 0;
+  transition: background-color 0.3s ease;
 }
 
 .user-actions {
@@ -288,8 +270,8 @@ onUnmounted(() => {
 
 .notification-btn:hover,
 .user-btn:hover {
-  background: #f1f5f9;
-  color: #3b82f6;
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
 }
 
 /* 通知徽章 */
@@ -297,7 +279,7 @@ onUnmounted(() => {
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #ef4444;
+  background: var(--danger);
   color: white;
   font-size: 0.75rem;
   min-width: 18px;
@@ -314,28 +296,30 @@ onUnmounted(() => {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 0.75rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
   min-width: 280px;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .menu-header {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid #f1f5f9;
-  background: #fafbfc;
+  border-bottom: 1px solid var(--border-tertiary);
+  background: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.3s ease;
 }
 
 .menu-title {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .menu-content {
@@ -351,19 +335,20 @@ onUnmounted(() => {
 .empty-state {
   padding: 2rem;
   text-align: center;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.875rem;
+  transition: color 0.3s ease;
 }
 
 .notification-item {
   padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-tertiary);
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .notification-item:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary);
 }
 
 .notification-item:last-child {
@@ -378,13 +363,15 @@ onUnmounted(() => {
 
 .notification-title {
   font-size: 0.875rem;
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .notification-time {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 /* 用户菜单样式 */
@@ -401,7 +388,7 @@ onUnmounted(() => {
 .user-avatar {
   width: 40px;
   height: 40px;
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -416,13 +403,15 @@ onUnmounted(() => {
 
 .user-name {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 0.875rem;
+  transition: color 0.3s ease;
 }
 
 .user-role {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .menu-item {
@@ -433,35 +422,37 @@ onUnmounted(() => {
   cursor: pointer;
   transition: background 0.2s ease;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .menu-item:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary);
 }
 
 .menu-item i {
   width: 1rem;
   text-align: center;
-  color: #64748b;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .menu-item.logout {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .menu-item.logout:hover {
-  background: #fef2f2;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .menu-item.logout i {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .menu-divider {
   height: 1px;
-  background: #f1f5f9;
+  background: var(--border-tertiary);
   margin: 0.5rem 0;
+  transition: background-color 0.3s ease;
 }
 
 /* 响应式设计 */
@@ -495,6 +486,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
