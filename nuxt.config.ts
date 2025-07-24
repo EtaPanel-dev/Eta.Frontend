@@ -1,21 +1,27 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// nuxt.config.ts
 export default defineNuxtConfig({
     devtools: { enabled: true },
     compatibilityDate: '2025-07-24',
-    modules: ['@primevue/nuxt-module'],
+    modules: [
+        '@primevue/nuxt-module'
+    ],
     primevue: {
         options: {
             theme: {
-                preset: 'Aura'
+                preset: 'Aura',
+                options: {
+                    prefix: 'p',
+                    darkModeSelector: 'system',
+                    cssLayer: false
+                }
             }
-        }
+        },
+        autoImport: true,
     },
     css: [
         'primeicons/primeicons.css',
         '~/assets/css/main.css'
     ],
-    // 添加SSR配置以减少水合问题
-    ssr: true,
     nitro: {
         compressPublicAssets: true
     }
