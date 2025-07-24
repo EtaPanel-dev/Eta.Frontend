@@ -6,15 +6,19 @@
         <span class="font-bold text-lg">EtaPanel</span>
       </div>
     </div>
-    
+
     <div class="sidebar-content">
-      <div v-for="section in menuSections" :key="section.title" class="nav-section">
+      <div
+        v-for="section in menuSections"
+        :key="section.title"
+        class="nav-section"
+      >
         <div class="nav-title">{{ section.title }}</div>
-        <div 
-          v-for="item in section.items" 
+        <div
+          v-for="item in section.items"
           :key="item.key"
-          class="nav-item" 
-          :class="{ active: props.activeMenu === item.key }" 
+          class="nav-item"
+          :class="{ active: props.activeMenu === item.key }"
           @click="handleMenuClick(item.key)"
         >
           <i :class="item.icon" />
@@ -26,70 +30,68 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuSection } from '~/types'
+import type { MenuSection } from "~/types";
 
 const props = defineProps<{
-  activeMenu: string
-}>()
+  activeMenu: string;
+}>();
 
 const emit = defineEmits<{
-  'menu-change': [menu: string]
-}>()
+  "menu-change": [menu: string];
+}>();
 
 // 处理菜单项点击
 const handleMenuClick = (menuKey: string) => {
   // 发出菜单变化事件
-  emit('menu-change', menuKey)
-}
+  emit("menu-change", menuKey);
+};
 
 // 菜单配置
 const menuSections: MenuSection[] = [
   {
-    title: '概览',
-    items: [
-      { key: 'dashboard', label: '仪表板', icon: 'pi pi-home' }
-    ]
+    title: "概览",
+    items: [{ key: "dashboard", label: "仪表板", icon: "pi pi-home" }],
   },
   {
-    title: '应用管理',
+    title: "应用管理",
     items: [
-      { key: 'containers', label: '容器', icon: 'pi pi-box' },
-      { key: 'images', label: '镜像', icon: 'pi pi-image' },
-      { key: 'networks', label: '网络', icon: 'pi pi-sitemap' },
-      { key: 'volumes', label: '存储卷', icon: 'pi pi-database' }
-    ]
+      { key: "containers", label: "容器", icon: "pi pi-box" },
+      { key: "images", label: "镜像", icon: "pi pi-image" },
+      { key: "networks", label: "网络", icon: "pi pi-sitemap" },
+      { key: "volumes", label: "存储卷", icon: "pi pi-database" },
+    ],
   },
   {
-    title: '网站管理',
+    title: "网站管理",
     items: [
-      { key: 'websites', label: '网站', icon: 'pi pi-globe' },
-      { key: 'ssl', label: 'SSL证书', icon: 'pi pi-shield' }
-    ]
+      { key: "websites", label: "网站", icon: "pi pi-globe" },
+      { key: "ssl", label: "SSL证书", icon: "pi pi-shield" },
+    ],
   },
   {
-    title: '数据库',
+    title: "数据库",
     items: [
-      { key: 'mysql', label: 'MySQL', icon: 'pi pi-database' },
-      { key: 'redis', label: 'Redis', icon: 'pi pi-server' }
-    ]
+      { key: "mysql", label: "MySQL", icon: "pi pi-database" },
+      { key: "redis", label: "Redis", icon: "pi pi-server" },
+    ],
   },
   {
-    title: '系统工具',
+    title: "系统工具",
     items: [
-      { key: 'files', label: '文件管理', icon: 'pi pi-folder' },
-      { key: 'terminal', label: '终端', icon: 'pi pi-desktop' },
-      { key: 'cron', label: '计划任务', icon: 'pi pi-clock' },
-      { key: 'firewall', label: '防火墙', icon: 'pi pi-shield' }
-    ]
+      { key: "files", label: "文件管理", icon: "pi pi-folder" },
+      { key: "terminal", label: "终端", icon: "pi pi-desktop" },
+      { key: "cron", label: "计划任务", icon: "pi pi-clock" },
+      { key: "firewall", label: "防火墙", icon: "pi pi-shield" },
+    ],
   },
   {
-    title: '系统设置',
+    title: "系统设置",
     items: [
-      { key: 'settings', label: '系统设置', icon: 'pi pi-cog' },
-      { key: 'logs', label: '系统日志', icon: 'pi pi-file-text' }
-    ]
-  }
-]
+      { key: "settings", label: "系统设置", icon: "pi pi-cog" },
+      { key: "logs", label: "系统日志", icon: "pi pi-file-text" },
+    ],
+  },
+];
 </script>
 
 <style scoped>
@@ -151,17 +153,6 @@ const menuSections: MenuSection[] = [
   color: white;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-}
-
-.nav-item.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background-color: #1d4ed8;
-  border-radius: 0 2px 2px 0;
 }
 
 .nav-item i {

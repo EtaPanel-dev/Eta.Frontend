@@ -81,9 +81,9 @@
           <Column field="usage" header="使用率">
             <template #body="slotProps">
               <div class="flex items-center gap-2">
-                <CustomProgressBar 
-                  :value="slotProps.data.usagePercent" 
-                  class-name="flex-1 h-2" 
+                <CustomProgressBar
+                  :value="slotProps.data.usagePercent"
+                  class-name="flex-1 h-2"
                 />
                 <span class="text-sm">{{ slotProps.data.usage }}</span>
               </div>
@@ -387,8 +387,6 @@ useHead({
 }
 
 :deep(.p-card-title) {
-  margin: 0;
-  padding: 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: #1f2937;

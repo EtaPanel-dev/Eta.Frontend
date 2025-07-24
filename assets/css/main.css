@@ -354,8 +354,8 @@ body {
   font-size: 1.125rem;
   font-weight: 600;
   color: #1f2937;
-  margin: 0;
-  padding: 0;
+  margin-inline: 1.5rem;
+  margin-top: 1.5rem;
   line-height: 1.5;
 }
 
@@ -608,8 +608,6 @@ body {
 
 .p-card .p-card-header .p-card-title,
 .p-card-header .p-card-title {
-  margin: 0 !important;
-  padding: 0 !important;
   font-size: 1.1rem !important;
   font-weight: 600 !important;
   color: #1f2937 !important;
@@ -839,13 +837,13 @@ body {
 
 /* 滚动条的滑块 */
 ::-webkit-scrollbar-thumb {
-  background: #888; /* 滑块的背景色 */
+  background: #b1b0b0; /* 滑块的背景色 */
   border-radius: 10px; /* 滑块圆角 */
 }
 
 /* 滑块在悬停时的样式 */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; /* 悬停时的滑块背景色 */
+  background: #b1b0b0; /* 悬停时的滑块背景色 */
 }
 
 /* 还可以为 PrimeVue 的特定组件添加样式 */
@@ -853,5 +851,3 @@ body {
 .p-dialog .p-dialog-content::-webkit-scrollbar-thumb {
   background-color: #66b5ff;
 }
-
-/* 如果你使用 OverlayScrollbar 这样的第三方库，可以参考其文档进行自定义 */
