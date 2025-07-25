@@ -32,7 +32,7 @@
       </div>
       
       <div class="login-footer">
-        <small class="text-600">&copy; 2024 EtaPanel. All rights reserved.</small>
+        <small class="text-600">&copy; {{ new Date().getFullYear() }} EtaPanel. All rights reserved.</small>
       </div>
     </div>
   </div>
