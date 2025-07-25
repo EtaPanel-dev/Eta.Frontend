@@ -131,21 +131,20 @@ const toggleUserMenu = () => {
   showNotifications.value = false;
 };
 
+const authStore = useAuthStore()
+
 const handleUserAction = (action: string) => {
   showUserMenu.value = false;
 
   switch (action) {
     case "profile":
-      // 跳转到个人资料页面
       console.log('跳转到个人资料页面');
       break;
     case "settings":
-      // 跳转到系统设置页面
       navigateTo('/settings');
       break;
     case "logout":
-      // 处理退出登录
-      console.log('处理退出登录');
+      authStore.logout();
       break;
   }
 };

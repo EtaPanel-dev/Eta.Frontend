@@ -1,19 +1,40 @@
 import type { SystemInfo } from '~/types'
 
 export const useSystemInfo = () => {
-    // 使用固定的初始值确保服务端和客户端一致
+    const { getSystemInfo } = useApi()
+    
+    // 默认系统信息
     const defaultSystemInfo: SystemInfo = {
-        load: '1.2',
-        memory: 68,
-        disk: 45,
-        cpu: 32,
-        memoryUsed: '5.4 GB',
-        memoryTotal: '8.0 GB'
+        load: '0.0',
+        memory: 0,
+        disk: 0,
+        cpu: 0,
+        memoryUsed: '0 GB',
+        memoryTotal: '0 GB'
     }
 
     const systemInfo = useState<SystemInfo>('systemInfo', () => defaultSystemInfo)
+    
+    // 刷新系统信息
+    const refreshSystemInfo = async () => {
+        try {
+            const data = await getSystemInfo()
+            systemInfo.value = data
+        } catch (error) {
+            console.error('获取系统信息失败:', error)
+        }
+    }
+    
+    // 自动刷新
+    const startAutoRefresh = (interval = 5000) => {
+        const timer = setInterval(refreshSystemInfo, interval)
+        onUnmounted(() => clearInterval(timer))
+        return timer
+    }
 
     return {
-        systemInfo: readonly(systemInfo)
+        systemInfo: readonly(systemInfo),
+        refreshSystemInfo,
+        startAutoRefresh
     }
 }

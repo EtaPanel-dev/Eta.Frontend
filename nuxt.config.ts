@@ -2,8 +2,12 @@
 export default defineNuxtConfig({
     devtools: { enabled: true },
     compatibilityDate: '2025-07-24',
+    devServer: {
+        host: '0.0.0.0'
+    },
     modules: [
-        '@primevue/nuxt-module'
+        '@primevue/nuxt-module',
+        '@pinia/nuxt'
     ],
     primevue: {
         options: {
@@ -22,6 +26,11 @@ export default defineNuxtConfig({
         'primeicons/primeicons.css',
         '~/assets/css/main.css'
     ],
+    runtimeConfig: {
+        public: {
+            apiBaseUrl: 'http://lxhtt-mac-mini:8080'
+        }
+    },
     nitro: {
         compressPublicAssets: true
     }

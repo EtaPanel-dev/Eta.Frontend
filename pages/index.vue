@@ -146,34 +146,41 @@
 <script setup lang="ts">
 import type { SystemMetric, DiskInfo, Container, SystemService } from "~/types";
 
-// 使用自定义 composables
-const { systemInfo } = useSystemInfo();
+// 使用 Pinia stores
+const systemStore = useSystemStore()
+const api = useApi()
 
 // 创建计算属性确保一致的值
-const cpuUsage = computed(() => systemInfo.value?.cpu ?? 32);
-const memoryUsage = computed(() => systemInfo.value?.memory ?? 68);
-const memoryUsed = computed(() => systemInfo.value?.memoryUsed ?? "5.4 GB");
-const memoryTotal = computed(() => systemInfo.value?.memoryTotal ?? "8.0 GB");
+const cpuUsage = computed(() => systemStore.systemInfo.cpu ?? 0)
+const memoryUsage = computed(() => systemStore.systemInfo.memory ?? 0)
+const memoryUsed = computed(() => systemStore.systemInfo.memoryUsed ?? "0 GB")
+const memoryTotal = computed(() => systemStore.systemInfo.memoryTotal ?? "0 GB")
 
-// 系统指标
-const systemMetrics = ref<SystemMetric[]>([
+// 启动自动刷新
+onMounted(() => {
+  systemStore.refreshSystemInfo()
+  systemStore.startAutoRefresh()
+})
+
+// 系统指标 - 基于实时数据
+const systemMetrics = computed<SystemMetric[]>(() => [
   {
     title: "CPU 使用率",
-    value: "32%",
+    value: `${cpuUsage.value}%`,
     subtitle: "4核心",
     icon: "pi pi-microchip",
     color: "#3B82F6",
   },
   {
     title: "内存使用",
-    value: "5.4GB",
-    subtitle: "总计 8.0GB",
+    value: memoryUsed.value,
+    subtitle: `总计 ${memoryTotal.value}`,
     icon: "pi pi-server",
     color: "#10B981",
   },
   {
     title: "磁盘使用",
-    value: "45%",
+    value: `${systemStore.systemInfo.disk ?? 0}%`,
     subtitle: "120GB / 256GB",
     icon: "pi pi-database",
     color: "#F59E0B",
@@ -185,84 +192,40 @@ const systemMetrics = ref<SystemMetric[]>([
     icon: "pi pi-wifi",
     color: "#8B5CF6",
   },
-]);
+])
 
-// 磁盘信息
-const diskInfo = ref<DiskInfo[]>([
-  {
-    filesystem: "/dev/sda1",
-    size: "256GB",
-    used: "115GB",
-    available: "141GB",
-    usage: "45%",
-    usagePercent: 45,
-    mountpoint: "/",
-  },
-  {
-    filesystem: "/dev/sda2",
-    size: "500GB",
-    used: "320GB",
-    available: "180GB",
-    usage: "64%",
-    usagePercent: 64,
-    mountpoint: "/home",
-  },
-]);
+// 磁盘信息 - 从API获取
+const { data: diskInfo } = await useLazyAsyncData('disk-info', async () => {
+  try {
+    const result = await api.getDiskInfo()
+    return result || []
+  } catch (error) {
+    console.error('获取磁盘信息失败:', error)
+    return []
+  }
+}, { default: () => [] })
 
-// 运行中的容器
-const runningContainers = ref<Container[]>([
-  {
-    id: "1",
-    name: "nginx-web",
-    image: "nginx:latest",
-    status: "running",
-    ports: "80:80",
-    created: "2024-01-15",
-    uptime: "5天",
-  },
-  {
-    id: "2",
-    name: "mysql-db",
-    image: "mysql:8.0",
-    status: "running",
-    ports: "3306:3306",
-    created: "2024-01-10",
-    uptime: "10天",
-  },
-  {
-    id: "3",
-    name: "redis-cache",
-    image: "redis:alpine",
-    status: "running",
-    ports: "6379:6379",
-    created: "2024-01-08",
-    uptime: "12天",
-  },
-]);
+// API中没有容器接口，返回空数组
+const runningContainers = ref<Container[]>([])
 
-// 系统服务
-const systemServices = ref<SystemService[]>([
-  {
-    name: "Docker",
-    description: "Docker 容器服务",
-    status: "active",
-  },
+// 系统服务 - 从 Nginx 状态获取
+const { data: nginxStatus } = await useLazyAsyncData('nginx-status', async () => {
+  try {
+    const result = await api.getNginxStatus()
+    return result || { running: false }
+  } catch (error) {
+    console.error('获取Nginx状态失败:', error)
+    return { running: false }
+  }
+}, { default: () => ({ running: false }) })
+
+const systemServices = computed(() => [
   {
     name: "Nginx",
     description: "Web 服务器",
-    status: "active",
+    status: nginxStatus.value?.running ? "active" : "inactive",
   },
-  {
-    name: "SSH",
-    description: "SSH 远程连接服务",
-    status: "active",
-  },
-  {
-    name: "Firewall",
-    description: "防火墙服务",
-    status: "inactive",
-  },
-]);
+])
 
 // 导航到容器页面
 const navigateToContainers = () => {

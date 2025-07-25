@@ -94,122 +94,16 @@ const newContainer = ref({
   env: "",
 });
 
-// 获取容器数据
+// API服务
+const api = useApi()
+
+// API文档中没有容器管理接口，返回空数组
 const {
   data: containers,
   pending,
   refresh,
-} = await useLazyAsyncData<Container[]>("containers", () => {
-  return Promise.resolve([
-    {
-      id: "1",
-      name: "nginx-web",
-      image: "nginx:latest",
-      status: "running",
-      ports: "80:80, 443:443",
-      created: "2024-01-15 10:30",
-      uptime: "5天 3小时",
-    },
-    {
-      id: "2",
-      name: "mysql-db",
-      image: "mysql:8.0",
-      status: "running",
-      ports: "3306:3306",
-      created: "2024-01-10 14:20",
-      uptime: "10天 8小时",
-    },
-    {
-      id: "3",
-      name: "redis-cache",
-      image: "redis:alpine",
-      status: "stopped",
-      ports: "6379:6379",
-      created: "2024-01-08 09:15",
-      uptime: "-",
-    },
-    {
-      id: "4",
-      name: "app-backend",
-      image: "node:18-alpine",
-      status: "running",
-      ports: "3000:3000",
-      created: "2024-01-20 16:45",
-      uptime: "2天 1小时",
-    },
-    {
-      id: "5",
-      name: "postgres-db",
-      image: "postgres:15",
-      status: "running",
-      ports: "5432:5432",
-      created: "2024-01-18 09:30",
-      uptime: "4天 2小时",
-    },
-    {
-      id: "6",
-      name: "mongodb-store",
-      image: "mongo:7.0",
-      status: "paused",
-      ports: "27017:27017",
-      created: "2024-01-16 14:15",
-      uptime: "-",
-    },
-    {
-      id: "7",
-      name: "elasticsearch-search",
-      image: "elasticsearch:8.11",
-      status: "running",
-      ports: "9200:9200, 9300:9300",
-      created: "2024-01-14 11:45",
-      uptime: "8天 5小时",
-    },
-    {
-      id: "8",
-      name: "rabbitmq-queue",
-      image: "rabbitmq:3.12-management",
-      status: "running",
-      ports: "5672:5672, 15672:15672",
-      created: "2024-01-12 16:20",
-      uptime: "10天 1小时",
-    },
-    {
-      id: "9",
-      name: "grafana-monitor",
-      image: "grafana/grafana:latest",
-      status: "stopped",
-      ports: "3000:3000",
-      created: "2024-01-11 13:30",
-      uptime: "-",
-    },
-    {
-      id: "10",
-      name: "prometheus-metrics",
-      image: "prom/prometheus:latest",
-      status: "running",
-      ports: "9090:9090",
-      created: "2024-01-09 10:15",
-      uptime: "13天 7小时",
-    },
-    {
-      id: "11",
-      name: "jenkins-ci",
-      image: "jenkins/jenkins:lts",
-      status: "running",
-      ports: "8080:8080, 50000:50000",
-      created: "2024-01-07 15:45",
-      uptime: "15天 3小时",
-    },
-    {
-      id: "12",
-      name: "sonarqube-quality",
-      image: "sonarqube:community",
-      status: "stopped",
-      ports: "9000:9000",
-      created: "2024-01-05 12:20",
-      uptime: "-",
-    },
-  ]);
+} = await useLazyAsyncData<Container[]>("containers", async () => {
+  return []
 });
 
 // 过滤容器
@@ -239,68 +133,17 @@ const refreshContainers = () => {
   refresh();
 };
 
+// 容器操作方法 - API中没有容器接口，空实现
 const startContainer = async (id: string) => {
-  console.log("启动容器:", id);
-  // 这里调用 API 启动容器
-};
-
-const pauseContainer = async (id: string) => {
-  console.log("暂停容器:", id);
-  // 这里调用 API 暂停容器
-};
-
-const stopContainer = async (id: string) => {
-  console.log("停止容器:", id);
-  // 这里调用 API 停止容器
-};
-
-const restartContainer = async (id: string) => {
-  console.log("重启容器:", id);
-  // 这里调用 API 重启容器
-};
-
-const openTerminal = (id: string) => {
-  console.log("打开终端:", id);
-  // 这里打开容器终端
-};
-
-const viewLogs = (id: string) => {
-  console.log("查看日志:", id);
-  // 这里查看容器日志
-};
-
-const deleteContainer = async (id: string) => {
-  console.log("删除容器:", id);
-  // 这里调用 API 删除容器
-};
-
-const createContainer = async () => {
-  if (!newContainer.value.name || !newContainer.value.image) {
-    return;
-  }
-
-  creating.value = true;
-
-  try {
-    // 这里调用 API 创建容器
-    console.log("创建容器:", newContainer.value);
-
-    // 重置表单
-    newContainer.value = {
-      name: "",
-      image: "",
-      ports: "",
-      env: "",
-    };
-
-    showCreateContainer.value = false;
-    await refresh();
-  } catch (error) {
-    console.error("创建容器失败:", error);
-  } finally {
-    creating.value = false;
-  }
-};
+  console.log('容器管理功能暂未实现')
+}
+const pauseContainer = async (id: string) => {}
+const stopContainer = async (id: string) => {}
+const restartContainer = async (id: string) => {}
+const openTerminal = (id: string) => {}
+const viewLogs = async (id: string) => {}
+const deleteContainer = async (id: string) => {}
+const createContainer = async () => {}
 </script>
 
 <style scoped>

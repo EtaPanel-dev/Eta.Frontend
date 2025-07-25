@@ -1,107 +1,236 @@
 <template>
   <div class="files-content">
+    <!-- 工具栏 -->
     <div class="flex justify-between items-center mb-4">
       <div class="flex items-center gap-2">
-        <Breadcrumb :model="breadcrumbItems" />
+        <Button icon="pi pi-home" text @click="navigateToPath('/')" />
+        <span class="text-sm text-gray-500">/</span>
+        <span v-for="(segment, index) in pathSegments" :key="index" class="flex items-center gap-2">
+          <Button :label="segment" text @click="navigateToSegment(index)" />
+          <span v-if="index < pathSegments.length - 1" class="text-sm text-gray-500">/</span>
+        </span>
       </div>
       <div class="flex gap-2">
-        <Button label="上传文件" icon="pi pi-upload" @click="showUpload = true" />
-        <Button label="新建文件夹" icon="pi pi-folder-plus" outlined />
-        <Button label="新建文件" icon="pi pi-file-plus" outlined />
+        <Button label="新建文件夹" icon="pi pi-folder-plus" @click="showCreateFolder = true" />
+        <Button label="上传文件" icon="pi pi-upload" @click="$refs.fileInput.click()" />
         <Button icon="pi pi-refresh" outlined @click="refreshFiles" />
       </div>
     </div>
 
-    <Card>
-      <template #content>
-        <DataTable :value="files" :loading="pending" responsive-layout="scroll">
-          <Column field="name" header="名称">
-            <template #body="slotProps">
-              <div class="flex items-center gap-2 cursor-pointer hover:text-primary">
-                <i :class="getFileIcon(slotProps.data)" />
-                <span>{{ slotProps.data.name }}</span>
-              </div>
-            </template>
-          </Column>
-          <Column field="size" header="大小" />
-          <Column field="permissions" header="权限" />
-          <Column field="owner" header="所有者" />
-          <Column field="modified" header="修改时间" />
-          <Column header="操作" class="w-32">
-            <template #body="slotProps">
-              <div class="flex gap-1">
-                <Button icon="pi pi-download" size="small" text />
-                <Button icon="pi pi-pencil" size="small" text />
-                <Button icon="pi pi-trash" size="small" text severity="danger" />
-              </div>
-            </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
+    <!-- 文件列表 -->
+    <DataTable :value="files" :loading="pending" responsive-layout="scroll"
+      selection-mode="multiple" v-model:selection="selectedFiles">
+      <Column selection-mode="multiple" header-style="width: 3rem" />
+      <Column field="name" header="名称">
+        <template #body="slotProps">
+          <div class="flex items-center gap-2 cursor-pointer" @click="handleFileClick(slotProps.data)">
+            <i :class="getFileIcon(slotProps.data)" />
+            <span>{{ slotProps.data.name }}</span>
+          </div>
+        </template>
+      </Column>
+      <Column field="size" header="大小" />
+      <Column field="permissions" header="权限" />
+      <Column field="owner" header="所有者" />
+      <Column field="modified" header="修改时间" />
+      <Column header="操作" class="w-32">
+        <template #body="slotProps">
+          <div class="flex gap-1">
+            <Button icon="pi pi-download" size="small" text @click="downloadFile(slotProps.data)" />
+            <Button icon="pi pi-trash" size="small" text severity="danger" @click="deleteFile(slotProps.data)" />
+          </div>
+        </template>
+      </Column>
+    </DataTable>
 
-    <Dialog v-model:visible="showUpload" modal header="上传文件" :style="{ width: '600px' }">
-      <div class="text-center p-8">
-        <i class="pi pi-cloud-upload text-4xl text-gray-400 mb-4" />
-        <p class="text-gray-600">文件上传功能</p>
+    <!-- 新建文件夹对话框 -->
+    <Dialog v-model:visible="showCreateFolder" modal header="新建文件夹" :style="{ width: '400px' }">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">文件夹名称</label>
+          <InputText v-model="newFolderName" class="w-full" placeholder="输入文件夹名称" />
+        </div>
       </div>
+      <template #footer>
+        <Button label="取消" text @click="showCreateFolder = false" />
+        <Button label="创建" @click="createFolder" />
+      </template>
     </Dialog>
+
+    <!-- 隐藏的文件上传输入 -->
+    <input ref="fileInput" type="file" multiple style="display: none" @change="handleFileUpload" />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { FileItem } from "~/types"
+
+// 页面 meta
 useHead({
   title: "文件管理 - EtaPanel",
-});
+})
 
-const showUpload = ref(false);
-const currentPath = ref("/var/www/html");
+// API服务
+const api = useApi()
 
-const breadcrumbItems = computed(() => [
-  { label: "根目录" },
-  { label: "var" },
-  { label: "www" },
-  { label: "html" },
-]);
+// 响应式数据
+const currentPath = ref('/')
+const selectedFiles = ref<FileItem[]>([])
+const showCreateFolder = ref(false)
+const newFolderName = ref('')
+const fileInput = ref<HTMLInputElement>()
 
+// 路径分段
+const pathSegments = computed(() => {
+  return currentPath.value.split('/').filter(segment => segment)
+})
+
+// 获取文件列表
 const {
   data: files,
   pending,
-  refresh,
-} = await useLazyAsyncData("files", () => {
-  return Promise.resolve([
-    {
-      name: "index.html",
-      type: "file",
-      size: "2.3 KB",
-      permissions: "-rw-r--r--",
-      owner: "www-data",
-      modified: "2024-01-20 15:45",
-    },
-    {
-      name: "assets",
-      type: "directory",
-      size: "-",
-      permissions: "drwxr-xr-x",
-      owner: "www-data",
-      modified: "2024-01-19 14:20",
-    },
-  ]);
-});
+  refresh
+} = await useLazyAsyncData<FileItem[]>('files', async () => {
+  try {
+    const result = await api.getFiles(currentPath.value)
+    return result || []
+  } catch (error) {
+    console.error('获取文件列表失败:', error)
+    // 返回模拟数据作为后备
+    return [
+      {
+        name: 'documents',
+        type: 'directory',
+        size: '-',
+        permissions: 'drwxr-xr-x',
+        owner: 'root',
+        modified: '2024-01-15 10:30',
+        path: '/documents'
+      },
+      {
+        name: 'config.json',
+        type: 'file',
+        size: '2.5 KB',
+        permissions: '-rw-r--r--',
+        owner: 'root',
+        modified: '2024-01-14 15:20',
+        path: '/config.json'
+      }
+    ]
+  }
+}, { default: () => [] })
 
-const getFileIcon = (file: any) => {
-  return file.type === "directory"
-    ? "pi pi-folder text-blue-500"
-    : "pi pi-file text-gray-500";
-};
+// 方法
+const getFileIcon = (file: FileItem) => {
+  if (file.type === 'directory') {
+    return 'pi pi-folder text-blue-500'
+  }
+  const ext = file.name.split('.').pop()?.toLowerCase()
+  switch (ext) {
+    case 'txt': case 'md': return 'pi pi-file-text text-gray-500'
+    case 'json': case 'js': case 'ts': return 'pi pi-code text-green-500'
+    case 'jpg': case 'png': case 'gif': return 'pi pi-image text-purple-500'
+    case 'pdf': return 'pi pi-file-pdf text-red-500'
+    default: return 'pi pi-file text-gray-400'
+  }
+}
+
+const handleFileClick = (file: FileItem) => {
+  if (file.type === 'directory') {
+    navigateToPath(file.path)
+  }
+}
+
+const navigateToPath = (path: string) => {
+  currentPath.value = path
+  refresh()
+}
+
+const navigateToSegment = (index: number) => {
+  const segments = pathSegments.value.slice(0, index + 1)
+  navigateToPath('/' + segments.join('/'))
+}
 
 const refreshFiles = () => {
-  refresh();
-};
+  refresh()
+}
+
+const createFolder = async () => {
+  if (!newFolderName.value) return
+  
+  try {
+    const folderPath = currentPath.value === '/' 
+      ? `/${newFolderName.value}` 
+      : `${currentPath.value}/${newFolderName.value}`
+    
+    await api.createDirectory(folderPath)
+    newFolderName.value = ''
+    showCreateFolder.value = false
+    await refresh()
+  } catch (error) {
+    console.error('创建文件夹失败:', error)
+  }
+}
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+
+  for (const file of Array.from(files)) {
+    try {
+      await api.uploadFile(currentPath.value, file)
+    } catch (error) {
+      console.error(`上传文件 ${file.name} 失败:`, error)
+    }
+  }
+  
+  await refresh()
+  target.value = ''
+}
+
+const downloadFile = (file: FileItem) => {
+  const link = document.createElement('a')
+  link.href = `/api/files/download?path=${encodeURIComponent(file.path)}`
+  link.download = file.name
+  link.click()
+}
+
+const deleteFile = async (file: FileItem) => {
+  if (confirm(`确定要删除 ${file.name} 吗？`)) {
+    try {
+      await api.deleteFile(file.path)
+      await refresh()
+    } catch (error) {
+      console.error('删除文件失败:', error)
+    }
+  }
+}
 </script>
 
 <style scoped>
+.files-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
 .w-32 {
   width: 8rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  background-color: var(--bg-tertiary);
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  margin: -0.25rem;
 }
 </style>

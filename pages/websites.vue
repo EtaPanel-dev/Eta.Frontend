@@ -2,71 +2,82 @@
   <div class="websites-content">
     <div class="flex justify-between items-center mb-4">
       <div class="flex gap-2">
-        <Button label="添加网站" icon="pi pi-plus" @click="showCreateWebsite = true" />
-        <Button label="批量操作" icon="pi pi-list" outlined />
+        <Button label="创建网站" icon="pi pi-plus" @click="showCreateSite = true" />
+        <Button label="重载Nginx" icon="pi pi-refresh" outlined @click="reloadNginx" />
       </div>
       <div class="flex gap-2">
         <InputText v-model="searchQuery" placeholder="搜索网站..." class="w-64" />
-        <Button icon="pi pi-refresh" outlined @click="refreshWebsites" />
+        <Button icon="pi pi-refresh" outlined @click="refreshSites" />
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      <Card v-for="website in filteredWebsites" :key="website.id" class="website-card">
-        <template #content>
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-globe text-blue-500" />
-                <span class="font-medium">{{ website.domain }}</span>
-              </div>
-              <Tag :severity="website.status === 'active' ? 'success' : 'danger'"
-                :value="website.status === 'active' ? '运行中' : '已停止'" />
-            </div>
-
-            <div class="text-sm text-secondary-content space-y-1">
-              <div><strong>根目录:</strong> {{ website.root }}</div>
-              <div><strong>PHP版本:</strong> {{ website.php }}</div>
-              <div><strong>SSL:</strong> {{ website.ssl ? '已启用' : '未启用' }}</div>
-              <div><strong>创建时间:</strong> {{ website.created }}</div>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-              <Button icon="pi pi-external-link" size="small" text @click="openWebsite(website.domain)" />
-              <Button icon="pi pi-cog" size="small" text @click="editWebsite(website.id)" />
-              <Button icon="pi pi-shield" size="small" text :severity="website.ssl ? 'success' : 'secondary'"
-                @click="manageSSL(website.id)" />
-              <Button icon="pi pi-trash" size="small" text severity="danger" @click="deleteWebsite(website.id)" />
-            </div>
+    <DataTable :value="filteredSites" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
+      responsive-layout="scroll" :loading="pending">
+      <Column field="domain" header="域名">
+        <template #body="slotProps">
+          <div class="flex items-center gap-2">
+            <Tag :severity="slotProps.data.enabled ? 'success' : 'danger'" 
+                 :value="slotProps.data.enabled ? '启用' : '禁用'" />
+            <span class="font-medium">{{ slotProps.data.domain }}</span>
           </div>
         </template>
-      </Card>
-    </div>
+      </Column>
+      <Column field="root" header="根目录" />
+      <Column field="ssl" header="SSL">
+        <template #body="slotProps">
+          <Tag :severity="slotProps.data.ssl ? 'success' : 'secondary'" 
+               :value="slotProps.data.ssl ? '已启用' : '未启用'" />
+        </template>
+      </Column>
+      <Column field="proxy" header="反向代理">
+        <template #body="slotProps">
+          <Tag :severity="slotProps.data.proxy ? 'info' : 'secondary'" 
+               :value="slotProps.data.proxy ? '已启用' : '未启用'" />
+        </template>
+      </Column>
+      <Column header="操作" class="w-48">
+        <template #body="slotProps">
+          <div class="flex gap-1">
+            <Button icon="pi pi-pencil" size="small" text @click="editSite(slotProps.data)" />
+            <Button :icon="slotProps.data.enabled ? 'pi pi-pause' : 'pi pi-play'" 
+                    size="small" text @click="toggleSite(slotProps.data.id)" />
+            <Button icon="pi pi-trash" size="small" text severity="danger" 
+                    @click="deleteSite(slotProps.data.id)" />
+          </div>
+        </template>
+      </Column>
+    </DataTable>
 
-    <!-- 创建网站对话框 -->
-    <Dialog v-model:visible="showCreateWebsite" modal header="添加网站" :style="{ width: '600px' }">
+    <!-- 创建/编辑网站对话框 -->
+    <Dialog v-model:visible="showCreateSite" modal :header="editingId ? '编辑网站' : '创建网站'" 
+            :style="{ width: '600px' }">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-2">域名</label>
-          <InputText v-model="newWebsite.domain" class="w-full" placeholder="example.com" />
+          <InputText v-model="siteForm.domain" class="w-full" placeholder="example.com" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">根目录</label>
-          <InputText v-model="newWebsite.root" class="w-full" placeholder="/var/www/html" />
+          <InputText v-model="siteForm.root" class="w-full" placeholder="/var/www/html" />
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-2">PHP版本</label>
-          <Dropdown v-model="newWebsite.php" :options="phpVersions" option-label="label" option-value="value"
-            class="w-full" placeholder="选择PHP版本" />
+        <div class="flex gap-4">
+          <div class="flex items-center">
+            <Checkbox v-model="siteForm.ssl" binary />
+            <label class="ml-2">启用SSL</label>
+          </div>
+          <div class="flex items-center">
+            <Checkbox v-model="siteForm.proxy" binary />
+            <label class="ml-2">反向代理</label>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <Checkbox v-model="newWebsite.ssl" binary />
-          <label class="text-sm">启用SSL证书</label>
+        <div v-if="siteForm.proxy">
+          <label class="block text-sm font-medium mb-2">代理地址</label>
+          <InputText v-model="siteForm.proxyPass" class="w-full" placeholder="http://localhost:3000" />
         </div>
       </div>
       <template #footer>
-        <Button label="取消" text @click="showCreateWebsite = false" />
-        <Button label="创建" :loading="creating" @click="createWebsite" />
+        <Button label="取消" text @click="showCreateSite = false" />
+        <Button :label="editingId ? '更新' : '创建'" :loading="creating" @click="saveSite" />
       </template>
     </Dialog>
   </div>
@@ -75,111 +86,124 @@
 <script setup lang="ts">
 // 页面 meta
 useHead({
-  title: '网站管理 - EtaPanel'
-})
+  title: "网站管理 - EtaPanel",
+});
 
 // 响应式数据
-const showCreateWebsite = ref(false)
-const creating = ref(false)
-const searchQuery = ref('')
+const showCreateSite = ref(false);
+const creating = ref(false);
+const searchQuery = ref("");
+const editingId = ref<number | null>(null);
 
-const newWebsite = ref({
-  domain: '',
-  root: '/var/www/html',
-  php: '8.2',
-  ssl: false
-})
+const siteForm = ref({
+  domain: "",
+  root: "",
+  ssl: false,
+  proxy: false,
+  proxyPass: "",
+  enabled: true
+});
 
-const phpVersions = [
-  { label: 'PHP 8.3', value: '8.3' },
-  { label: 'PHP 8.2', value: '8.2' },
-  { label: 'PHP 8.1', value: '8.1' },
-  { label: 'PHP 7.4', value: '7.4' }
-]
+// API服务
+const api = useApi()
 
 // 获取网站数据
-const { data: websites, pending, refresh } = await useLazyAsyncData('websites', () => {
-  return Promise.resolve([
-    {
-      id: '1',
-      domain: 'example.com',
-      root: '/var/www/example.com',
-      php: '8.2',
-      ssl: true,
-      status: 'active',
-      created: '2024-01-15 10:30'
-    },
-    {
-      id: '2',
-      domain: 'blog.example.com',
-      root: '/var/www/blog',
-      php: '8.1',
-      ssl: true,
-      status: 'active',
-      created: '2024-01-10 14:20'
-    },
-    {
-      id: '3',
-      domain: 'test.local',
-      root: '/var/www/test',
-      php: '7.4',
-      ssl: false,
-      status: 'inactive',
-      created: '2024-01-20 16:45'
-    }
-  ])
-})
+const {
+  data: sites,
+  pending,
+  refresh,
+} = await useLazyAsyncData("nginx-sites", async () => {
+  try {
+    return await api.getNginxSites()
+  } catch (error) {
+    console.error('获取网站列表失败:', error)
+    return []
+  }
+});
 
 // 过滤网站
-const filteredWebsites = computed(() => {
-  if (!websites.value) return []
-  if (!searchQuery.value) return websites.value
+const filteredSites = computed(() => {
+  if (!sites.value) return [];
+  if (!searchQuery.value) return sites.value;
 
-  return websites.value.filter(website =>
-    website.domain.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
+  return sites.value.filter((site: any) =>
+    site.domain.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 
 // 方法
-const refreshWebsites = () => {
-  refresh()
+const refreshSites = () => {
+  refresh();
+};
+
+const reloadNginx = async () => {
+  try {
+    await api.reloadNginx()
+    console.log('Nginx重载成功')
+  } catch (error) {
+    console.error('Nginx重载失败:', error)
+  }
 }
 
-const openWebsite = (domain: string) => {
-  window.open(`https://${domain}`, '_blank')
+const editSite = (site: any) => {
+  editingId.value = site.id
+  siteForm.value = {
+    domain: site.domain,
+    root: site.root,
+    ssl: site.ssl,
+    proxy: site.proxy,
+    proxyPass: site.proxyPass || "",
+    enabled: site.enabled
+  }
+  showCreateSite.value = true
 }
 
-const editWebsite = (id: string) => {
-  console.log('编辑网站:', id)
+const toggleSite = async (id: number) => {
+  try {
+    await api.toggleNginxSite(id)
+    await refresh()
+  } catch (error) {
+    console.error('切换网站状态失败:', error)
+  }
 }
 
-const manageSSL = (id: string) => {
-  console.log('管理SSL:', id)
+const deleteSite = async (id: number) => {
+  if (confirm('确定要删除这个网站吗？')) {
+    try {
+      await api.deleteNginxSite(id)
+      await refresh()
+    } catch (error) {
+      console.error('删除网站失败:', error)
+    }
+  }
 }
 
-const deleteWebsite = async (id: string) => {
-  console.log('删除网站:', id)
-}
-
-const createWebsite = async () => {
-  if (!newWebsite.value.domain) return
+const saveSite = async () => {
+  if (!siteForm.value.domain) return
 
   creating.value = true
 
   try {
-    console.log('创建网站:', newWebsite.value)
-
-    newWebsite.value = {
-      domain: '',
-      root: '/var/www/html',
-      php: '8.2',
-      ssl: false
+    if (editingId.value) {
+      await api.updateNginxSite(editingId.value, siteForm.value)
+    } else {
+      await api.createNginxSite(siteForm.value)
     }
 
-    showCreateWebsite.value = false
+    // 重置表单
+    siteForm.value = {
+      domain: "",
+      root: "",
+      ssl: false,
+      proxy: false,
+      proxyPass: "",
+      enabled: true
+    }
+    editingId.value = null
+    showCreateSite.value = false
     await refresh()
   } catch (error) {
-    console.error('创建网站失败:', error)
+    console.error("保存网站失败:", error)
   } finally {
     creating.value = false
   }
@@ -187,6 +211,10 @@ const createWebsite = async () => {
 </script>
 
 <style scoped>
+.w-48 {
+  width: 12rem;
+}
+
 .w-64 {
   width: 16rem;
 }
@@ -195,49 +223,9 @@ const createWebsite = async () => {
   margin-top: 1rem;
 }
 
-.space-y-3>*+* {
-  margin-top: 0.75rem;
-}
-
-.space-y-1>*+* {
-  margin-top: 0.25rem;
-}
-
 .websites-content {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: 1.5rem;
-  min-height: 100vh;
   transition: all 0.3s ease;
-}
-
-.website-card {
-  transition: all 0.2s ease;
-}
-
-.website-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.grid-cols-1 {
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
-@media (min-width: 768px) {
-  .md\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 </style>
