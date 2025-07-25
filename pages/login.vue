@@ -8,31 +8,56 @@
         <h1 class="login-title">EtaPanel</h1>
         <p class="login-subtitle">服务器管理面板</p>
       </div>
-      
+
       <div class="surface-card p-5 shadow-2 border-round w-full">
         <div class="text-center mb-4">
           <div class="text-900 text-2xl font-medium mb-2">用户登录</div>
         </div>
-        
+
         <form @submit.prevent="handleLogin">
           <div class="form-field">
             <label for="username" class="form-label">用户名</label>
-            <InputText id="username" v-model="form.username" type="text" placeholder="请输入用户名" 
-                      class="w-full" style="padding:0.75rem;" required />
+            <InputText
+              id="username"
+              v-model="form.username"
+              type="text"
+              placeholder="请输入用户名"
+              class="w-full"
+              style="padding: 0.75rem"
+              required
+            />
           </div>
-          
+
           <div class="form-field">
             <label for="password" class="form-label">密码</label>
-            <InputText id="password" v-model="form.password" type="password" placeholder="请输入密码" 
-                      class="w-full" style="padding:0.75rem;" required />
+            <InputText
+              id="password"
+              v-model="form.password"
+              type="password"
+              placeholder="请输入密码"
+              class="w-full"
+              style="padding: 0.75rem"
+              required
+            />
           </div>
-          
-          <Button type="submit" label="登录" icon="pi pi-user" class="login-btn" style="padding:0.75rem;" :loading="loading" />
+
+          <Button
+            type="submit"
+            label="登录"
+            icon="pi pi-user"
+            class="login-btn"
+            style="padding: 0.75rem"
+            :loading="loading"
+          />
         </form>
       </div>
-      
+
       <div class="login-footer">
-        <small class="text-600">&copy; {{ new Date().getFullYear() }} EtaPanel. All rights reserved.</small>
+        <small class="text-600"
+          >&copy;
+          <ClientOnly fallback="0000">{{ currentYear }}</ClientOnly> EtaPanel.
+          All rights reserved.</small
+        >
       </div>
     </div>
   </div>
@@ -40,39 +65,47 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: 'empty',
-  auth: false
-})
+  layout: "empty",
+  auth: false,
+});
 
 useHead({
-  title: '登录 - EtaPanel'
-})
+  title: "登录 - EtaPanel",
+});
 
 const form = ref({
-  username: '',
-  password: ''
-})
+  username: "",
+  password: "",
+});
 
-const loading = ref(false)
-const router = useRouter()
-const route = useRoute()
-const authStore = useAuthStore()
+const loading = ref(false);
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const toast = useToast();
+
+const currentYear = computed(() => new Date().getFullYear());
 
 const handleLogin = async () => {
-  if (!form.value.username || !form.value.password) return
-  
-  loading.value = true
-  
+  if (!form.value.username || !form.value.password) return;
+
+  loading.value = true;
+
   try {
-    await authStore.login(form.value.username, form.value.password)
-    const redirect = route.query.redirect as string || '/'
-    await router.push(redirect)
-  } catch (error) {
-    console.error('登录失败:', error)
+    await authStore.login(form.value.username, form.value.password);
+    const redirect = (route.query.redirect as string) || "/";
+    await router.push(redirect);
+  } catch (error: any) {
+    toast.add({
+      severity: "error",
+      summary: "登录失败",
+      detail: error.message || "用户名或密码错误",
+      life: 3000,
+    });
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -150,16 +183,16 @@ const handleLogin = async () => {
   .login-container {
     padding: 1rem;
   }
-  
+
   .login-title {
     font-size: 2rem;
   }
-  
+
   .logo-wrapper {
     width: 60px;
     height: 60px;
   }
-  
+
   .logo-icon {
     font-size: 2rem;
   }
