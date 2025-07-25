@@ -53,7 +53,7 @@
       </Column>
       <Column field="lastRun" header="上次执行" />
       <Column field="nextRun" header="下次执行" />
-      <Column header="操作" class="w-32">
+      <Column header="操作" class="w-40">
         <template #body="slotProps">
           <div class="flex gap-1">
             <Button
@@ -61,18 +61,28 @@
               size="small"
               text
               @click="runCron(slotProps.data.id)"
+              v-tooltip.top="'立即执行'"
+            />
+            <Button
+              icon="pi pi-info-circle"
+              size="small"
+              text
+              @click="viewDetails(slotProps.data)"
+              v-tooltip.top="'详细信息'"
             />
             <Button
               icon="pi pi-pencil"
               size="small"
               text
               @click="editCron(slotProps.data.id)"
+              v-tooltip.top="'编辑任务'"
             />
             <Button
               icon="pi pi-eye"
               size="small"
               text
               @click="viewLogs(slotProps.data.id)"
+              v-tooltip.top="'查看日志'"
             />
             <Button
               icon="pi pi-trash"
@@ -80,11 +90,119 @@
               text
               severity="danger"
               @click="deleteCron(slotProps.data.id)"
+              v-tooltip.top="'删除任务'"
             />
           </div>
         </template>
       </Column>
     </DataTable>
+
+    <!-- 任务详细信息对话框 -->
+    <Dialog
+      v-model:visible="showDetails"
+      modal
+      header="任务详细信息"
+      :style="{ width: '600px' }"
+    >
+      <div v-if="selectedCron" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >任务名称</label
+            >
+            <div class="p-2 bg-gray-50 rounded border">
+              {{ selectedCron.name }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >执行时间</label
+            >
+            <div class="p-2 bg-gray-50 rounded border">
+              {{ selectedCron.schedule }}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >描述</label
+          >
+          <div class="p-2 bg-gray-50 rounded border">
+            {{ selectedCron.description || "无描述" }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >预设命令</label
+          >
+          <div
+            class="p-3 bg-gray-900 text-green-400 rounded border font-mono text-sm"
+          >
+            {{ selectedCron.command }}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >状态</label
+            >
+            <div class="p-2 bg-gray-50 rounded border">
+              <Tag
+                :severity="
+                  selectedCron.status === '启用' ? 'success' : 'danger'
+                "
+                :value="selectedCron.status"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >创建时间</label
+            >
+            <div class="p-2 bg-gray-50 rounded border">
+              {{ selectedCron.createdAt || "2024-01-15 10:30" }}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >上次执行</label
+            >
+            <div class="p-2 bg-gray-50 rounded border">
+              {{ selectedCron.lastRun }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >下次执行</label
+            >
+            <div class="p-2 bg-gray-50 rounded border">
+              {{ selectedCron.nextRun }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedCron.lastOutput">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >最近执行输出</label
+          >
+          <div
+            class="p-3 bg-gray-100 rounded border text-sm max-h-32 overflow-y-auto"
+          >
+            <pre>{{ selectedCron.lastOutput }}</pre>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button label="关闭" @click="showDetails = false" />
+        <Button label="编辑任务" icon="pi pi-pencil" @click="editFromDetails" />
+      </template>
+    </Dialog>
 
     <!-- 创建计划任务对话框 -->
     <Dialog
@@ -201,8 +319,10 @@ useHead({
 
 // 响应式数据
 const showCreateCron = ref(false);
+const showDetails = ref(false);
 const creating = ref(false);
 const searchQuery = ref("");
+const selectedCron = ref(null);
 
 const newCron = ref({
   name: "",
@@ -230,38 +350,51 @@ const {
     {
       id: "1",
       name: "数据库备份",
+      description: "每日自动备份MySQL数据库",
       command: "/usr/local/bin/backup-db.sh",
       schedule: "每天 02:00",
       status: "启用",
       lastRun: "2024-01-20 02:00",
       nextRun: "2024-01-21 02:00",
+      createdAt: "2024-01-10 14:30",
+      lastOutput:
+        "Database backup completed successfully\nBackup file: /backup/db_20240120_020000.sql\nSize: 2.3GB",
     },
     {
       id: "2",
       name: "清理日志文件",
+      description: "清理7天前的系统日志文件",
       command: 'find /var/log -name "*.log" -mtime +7 -delete',
       schedule: "每周日 03:00",
       status: "启用",
       lastRun: "2024-01-14 03:00",
       nextRun: "2024-01-21 03:00",
+      createdAt: "2024-01-08 09:15",
+      lastOutput: "Cleaned 15 log files\nFreed space: 1.2GB",
     },
     {
       id: "3",
       name: "系统更新检查",
+      description: "检查系统可用更新",
       command: "apt update && apt list --upgradable",
       schedule: "每天 06:00",
       status: "禁用",
       lastRun: "2024-01-15 06:00",
       nextRun: "-",
+      createdAt: "2024-01-05 16:45",
+      lastOutput: "5 packages can be upgraded",
     },
     {
       id: "4",
       name: "网站健康检查",
+      description: "检查网站服务是否正常运行",
       command: 'curl -f http://localhost/health || echo "Site down"',
       schedule: "每5分钟",
       status: "启用",
       lastRun: "2024-01-20 16:25",
       nextRun: "2024-01-20 16:30",
+      createdAt: "2024-01-12 11:20",
+      lastOutput: "HTTP/1.1 200 OK\nHealth check passed",
     },
   ]);
 });
@@ -293,6 +426,16 @@ const editCron = (id: string) => {
 
 const viewLogs = (id: string) => {
   console.log("查看日志:", id);
+};
+
+const viewDetails = (cron: any) => {
+  selectedCron.value = cron;
+  showDetails.value = true;
+};
+
+const editFromDetails = () => {
+  showDetails.value = false;
+  editCron(selectedCron.value.id);
 };
 
 const deleteCron = async (id: string) => {
@@ -342,6 +485,10 @@ const createCron = async () => {
   width: 8rem;
 }
 
+.w-40 {
+  width: 10rem;
+}
+
 .w-64 {
   width: 16rem;
 }
@@ -357,6 +504,18 @@ const createCron = async () => {
 
 .grid-cols-5 {
   grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.max-h-32 {
+  max-height: 8rem;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
 }
 
 .flex-wrap {
