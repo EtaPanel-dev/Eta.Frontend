@@ -1,0 +1,75 @@
+/* 进度条样式 - 支持自动dark mode */
+.p-progressbar {
+  height: 0.5rem !important;
+  background: var(--border-primary) !important;
+  border-radius: 0.25rem !important;
+  overflow: hidden !important;
+  border: none !important;
+  transition: background-color 0.3s ease;
+}
+
+.p-progressbar .p-progressbar-value {
+  background: var(--accent-primary) !important;
+  height: 100% !important;
+  border-radius: 0.25rem !important;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border: none !important;
+}
+
+/* 修复表格中进度条的高度 */
+.p-datatable .p-progressbar {
+  height: 0.5rem !important;
+  min-height: 0.5rem !important;
+}
+
+/* 强制隐藏进度条标签以避免水合错误 */
+.p-progressbar .p-progressbar-label {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* 确保进度条在服务端渲染时也隐藏标签 */
+.p-progressbar[show-value="false"] .p-progressbar-label,
+.p-progressbar:not([show-value="true"]) .p-progressbar-label {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* 确保所有进度条都隐藏数值显示 */
+.p-progressbar[show-value="false"] .p-progressbar-label,
+.p-progressbar:not([show-value="true"]) .p-progressbar-label {
+  display: none !important;
+}
+
+/* 进度条fallback样式 - 全局 */
+.progress-bar-fallback {
+  height: 0.5rem !important;
+  background: #e5e7eb !important;
+  border-radius: 0.25rem !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.progress-bar-fallback::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  border-radius: 0.25rem !important;
+  width: 0% !important;
+  transition: width 0.3s ease !important;
+}
