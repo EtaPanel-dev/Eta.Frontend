@@ -8,10 +8,19 @@
     </div>
 
     <div class="sidebar-content">
-      <div v-for="section in menuSections" :key="section.title" class="nav-section">
+      <div
+        v-for="section in menuSections"
+        :key="section.title"
+        class="nav-section"
+      >
         <div class="nav-title">{{ section.title }}</div>
-        <div v-for="item in section.items" :key="item.key" class="nav-item"
-          :class="{ active: props.activeMenu === item.key }" @click="handleMenuClick(item.key)">
+        <div
+          v-for="item in section.items"
+          :key="item.key"
+          class="nav-item"
+          :class="{ active: props.activeMenu === item.key }"
+          @click="handleMenuClick(item.key)"
+        >
           <i :class="item.icon" />
           <span>{{ item.label }}</span>
         </div>
@@ -79,7 +88,7 @@ const menuSections: MenuSection[] = [
     title: "系统设置",
     items: [
       { key: "settings", label: "系统设置", icon: "pi pi-cog" },
-      { key: "logs", label: "系统日志", icon: "pi pi-file-text" },
+      { key: "logs", label: "系统日志", icon: "pi pi-list" },
     ],
   },
 ];
