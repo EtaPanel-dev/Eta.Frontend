@@ -289,3 +289,8 @@
   border-color: var(--accent-primary);
   background: var(--bg-tertiary);
 }
+
+.p-card-title {
+  margin-inline: 1.5rem;
+  margin-top: 1.5rem;
+}
