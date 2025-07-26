@@ -95,7 +95,10 @@
               <div>进程: {{ systemInfo?.processes || 0 }}</div>
               <div>架构: {{ systemInfo?.arch || "Unknown" }}</div>
             </div>
-            <div class="mt-2 text-xs text-secondary-content truncate" :title="systemInfo?.cpuModel">
+            <div
+              class="mt-2 text-xs text-secondary-content truncate"
+              :title="systemInfo?.cpuModel"
+            >
               型号: {{ systemInfo?.cpuModel || "Unknown" }}
             </div>
           </div>
@@ -283,7 +286,7 @@
                   :value="
                     netInterface.addresses && netInterface.addresses.length > 0
                       ? '活跃'
-                      : '未连接'
+                      : '断开'
                   "
                 />
                 <div>
@@ -489,7 +492,7 @@ const networkPageSize = 5;
 const networkFilterOptions = [
   { label: "全部", value: "all" },
   { label: "活跃", value: "active" },
-  { label: "未连接", value: "inactive" },
+  { label: "断开", value: "inactive" },
 ];
 
 const filteredNetworkInterfaces = computed(() => {
@@ -1053,8 +1056,6 @@ onBeforeUnmount(() => {
     width: 10rem;
   }
 }
-
-
 
 /* 示例：暗色主题（如果你有主题切换功能） */
 /*

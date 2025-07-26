@@ -4,7 +4,7 @@
   
   <div class="layout-sidebar" :class="{ 'collapsed': !isOpen, 'mobile': isMobile }">
     <div class="sidebar-header">
-      <div class="flex items-center gap-2 p-3">
+      <div class="flex items-center gap-2 p-3" :class="{ 'justify-center': !isOpen }">
         <AppLogo size="medium" />
         <span v-show="isOpen" class="font-bold text-lg">EtaPanel</span>
       </div>

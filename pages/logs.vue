@@ -11,18 +11,50 @@
           @change="loadLogs"
         />
         <Dropdown
+          v-if="!isAccessLog"
           v-model="selectedLevel"
           :options="logLevels"
           option-label="label"
           option-value="value"
-          placeholder="日志级别"
+          placeholder="选择日志级别"
+          @change="filterLogs"
+        />
+
+        <Dropdown
+          v-if="selectedLogType === 'nginx-access'"
+          v-model="selectedStatusCode"
+          :options="statusCodes"
+          option-label="label"
+          option-value="value"
+          placeholder="状态码"
+          @change="filterLogs"
+        />
+        <Dropdown
+          v-if="selectedLogType === 'mysql'"
+          v-model="selectedQueryType"
+          :options="queryTypes"
+          option-label="label"
+          option-value="value"
+          placeholder="查询类型"
           @change="filterLogs"
         />
       </div>
       <div class="flex gap-2">
         <InputText
+          v-if="selectedLogType === 'nginx-access'"
+          v-model="ipFilter"
+          placeholder="IP地址过滤"
+          class="w-32"
+        />
+        <InputText
+          v-if="selectedLogType === 'mysql'"
+          v-model="durationFilter"
+          placeholder="执行时间(ms)"
+          class="w-32"
+        />
+        <InputText
           v-model="searchQuery"
-          placeholder="搜索日志..."
+          :placeholder="getSearchPlaceholder()"
           class="w-64"
         />
         <Button icon="pi pi-refresh" outlined @click="refreshLogs" />
@@ -93,9 +125,27 @@
               v-for="(log, index) in filteredLogs"
               :key="index"
               class="log-entry"
-              :class="getLogLevelClass(log.level)"
+              :class="getLogEntryClass(log)"
             >
-              <div class="log-header">
+              <!-- Nginx访问日志格式 -->
+              <div v-if="selectedLogType === 'nginx-access'" class="log-header">
+                <span class="log-time">{{ log.timestamp }}</span>
+                <span class="log-ip">{{ log.ip }}</span>
+                <span class="log-method" :class="getMethodClass(log.method)">{{ log.method }}</span>
+                <span class="log-status" :class="getStatusClass(log.status)">{{ log.status }}</span>
+                <span class="log-duration">{{ log.duration }}s</span>
+              </div>
+              
+              <!-- MySQL日志格式 -->
+              <div v-else-if="selectedLogType === 'mysql'" class="log-header">
+                <span class="log-time">{{ log.timestamp }}</span>
+                <span class="log-query-type" :class="getQueryTypeClass(log.queryType)">{{ log.queryType }}</span>
+                <span class="log-database">{{ log.database }}.{{ log.table }}</span>
+                <span class="log-duration" :class="getDurationClass(log.duration)">{{ log.duration }}s</span>
+              </div>
+              
+              <!-- 系统日志格式 -->
+              <div v-else class="log-header">
                 <span class="log-time">{{ log.timestamp }}</span>
                 <span class="log-level" :class="getLogLevelClass(log.level)">
                   <i :class="getLogLevelIcon(log.level)" />
@@ -103,6 +153,7 @@
                 </span>
                 <span class="log-source">{{ log.source }}</span>
               </div>
+              
               <div class="log-message">{{ log.message }}</div>
               <div v-if="log.details" class="log-details">
                 <pre>{{ log.details }}</pre>
@@ -132,6 +183,11 @@ useHead({
 // 响应式数据
 const selectedLogType = ref("system");
 const selectedLevel = ref("all");
+const selectedStatusCode = ref("all");
+const selectedQueryType = ref("all");
+
+const ipFilter = ref("");
+const durationFilter = ref("");
 const searchQuery = ref("");
 const isRealTime = ref(false);
 
@@ -152,60 +208,212 @@ const logTypes = [
 ];
 
 const logLevels = [
-  { label: "全部", value: "all" },
+  { label: "全部日志", value: "all" },
   { label: "错误", value: "error" },
   { label: "警告", value: "warning" },
   { label: "信息", value: "info" },
   { label: "调试", value: "debug" },
 ];
 
+const statusCodes = [
+  { label: "全部状态码", value: "all" },
+  { label: "2xx 成功", value: "2xx" },
+  { label: "3xx 重定向", value: "3xx" },
+  { label: "4xx 客户端错误", value: "4xx" },
+  { label: "5xx 服务器错误", value: "5xx" },
+  { label: "200 OK", value: "200" },
+  { label: "404 Not Found", value: "404" },
+  { label: "500 Internal Error", value: "500" },
+];
+
+const queryTypes = [
+  { label: "全部查询", value: "all" },
+  { label: "SELECT", value: "SELECT" },
+  { label: "INSERT", value: "INSERT" },
+  { label: "UPDATE", value: "UPDATE" },
+  { label: "DELETE", value: "DELETE" },
+  { label: "慢查询", value: "slow" },
+];
+
+
+
+// 计算属性：是否为访问日志
+const isAccessLog = computed(() => {
+  return selectedLogType.value === 'nginx-access' || selectedLogType.value === 'mysql';
+});
+
 // 获取日志数据
 const { data: logs, refresh } = await useLazyAsyncData("logs", () => {
+  // 根据日志类型返回不同的模拟数据
+  if (selectedLogType.value === 'nginx-access') {
+    return Promise.resolve([
+      {
+        timestamp: "2024-01-20 16:45:23",
+        ip: "192.168.1.100",
+        method: "GET",
+        url: "/api/users",
+        status: "200",
+        size: "1024",
+        duration: "0.123",
+        userAgent: "Mozilla/5.0 Chrome/120.0",
+        message: "GET /api/users 200 1024 0.123s",
+      },
+      {
+        timestamp: "2024-01-20 16:44:15",
+        ip: "10.0.0.50",
+        method: "POST",
+        url: "/api/login",
+        status: "404",
+        size: "512",
+        duration: "0.045",
+        userAgent: "Mozilla/5.0 Firefox/121.0",
+        message: "POST /api/login 404 512 0.045s",
+      },
+      {
+        timestamp: "2024-01-20 16:43:08",
+        ip: "172.16.0.10",
+        method: "GET",
+        url: "/dashboard",
+        status: "500",
+        size: "2048",
+        duration: "1.234",
+        userAgent: "Mozilla/5.0 Safari/17.0",
+        message: "GET /dashboard 500 2048 1.234s",
+      },
+    ]);
+  } else if (selectedLogType.value === 'nginx-error') {
+    return Promise.resolve([
+      {
+        timestamp: "2024-01-20 16:45:23",
+        level: "error",
+        source: "nginx",
+        message: "Connection refused to upstream server",
+        details: 'upstream: "http://127.0.0.1:3000/api/users"\nhost: "example.com"',
+      },
+      {
+        timestamp: "2024-01-20 16:44:15",
+        level: "error",
+        source: "nginx",
+        message: "SSL certificate verification failed",
+        details: "certificate: /etc/ssl/certs/example.com.crt",
+      },
+      {
+        timestamp: "2024-01-20 16:43:08",
+        level: "warning",
+        source: "nginx",
+        message: "Worker process exited unexpectedly",
+        details: "PID: 5678, Signal: 11",
+      },
+    ]);
+  } else if (selectedLogType.value === 'mysql') {
+    return Promise.resolve([
+      {
+        timestamp: "2024-01-20 16:45:23",
+        queryType: "SELECT",
+        duration: "0.023",
+        database: "app_db",
+        table: "users",
+        message: "SELECT * FROM users WHERE id = 1001",
+        details: "Rows examined: 1, Rows sent: 1",
+      },
+      {
+        timestamp: "2024-01-20 16:44:15",
+        queryType: "slow",
+        duration: "2.567",
+        database: "app_db",
+        table: "orders",
+        message: "SELECT * FROM orders WHERE created_at > '2024-01-01' ORDER BY id DESC LIMIT 1000",
+        details: "Rows examined: 50000, Rows sent: 1000",
+      },
+      {
+        timestamp: "2024-01-20 16:43:08",
+        queryType: "INSERT",
+        duration: "0.156",
+        database: "app_db",
+        table: "logs",
+        message: "INSERT INTO logs (level, message, created_at) VALUES ('info', 'User login', NOW())",
+        details: "Affected rows: 1",
+      },
+    ]);
+  } else if (selectedLogType.value === 'php') {
+    return Promise.resolve([
+      {
+        timestamp: "2024-01-20 16:45:23",
+        level: "error",
+        source: "php",
+        message: "Fatal error: Uncaught Exception",
+        details: "Stack trace:\n#0 /var/www/html/index.php(25): Database->connect()\n#1 {main}",
+      },
+      {
+        timestamp: "2024-01-20 16:44:15",
+        level: "warning",
+        source: "php",
+        message: "Deprecated function used: mysql_connect()",
+        details: "File: /var/www/html/legacy.php, Line: 42",
+      },
+      {
+        timestamp: "2024-01-20 16:43:08",
+        level: "error",
+        source: "php",
+        message: "Memory limit exceeded",
+        details: "Allowed memory size: 128M, Used: 130M",
+      },
+    ]);
+  } else if (selectedLogType.value === 'application') {
+    return Promise.resolve([
+      {
+        timestamp: "2024-01-20 16:45:23",
+        level: "info",
+        source: "application",
+        message: "User login successful",
+        details: "User: admin, IP: 192.168.1.100, Browser: Chrome/120.0",
+      },
+      {
+        timestamp: "2024-01-20 16:44:15",
+        level: "debug",
+        source: "application",
+        message: "Cache miss for key: user_profile_1001",
+        details: null,
+      },
+      {
+        timestamp: "2024-01-20 16:43:08",
+        level: "warning",
+        source: "application",
+        message: "API rate limit exceeded",
+        details: "IP: 192.168.1.100, Endpoint: /api/users, Limit: 100/hour",
+      },
+    ]);
+  }
+  
+  // 默认系统日志
   return Promise.resolve([
     {
       timestamp: "2024-01-20 16:45:23",
-      level: "error",
-      source: "nginx",
-      message: "Connection refused to upstream server",
-      details:
-        'upstream: "http://127.0.0.1:3000/api/users"\nhost: "example.com"',
+      level: "info",
+      source: "system",
+      message: "System startup completed",
+      details: "Boot time: 45.2s, Services: 12 started",
     },
     {
       timestamp: "2024-01-20 16:44:15",
       level: "warning",
-      source: "mysql",
-      message: "Slow query detected (2.5s)",
-      details:
-        'SELECT * FROM users WHERE created_at > "2024-01-01" ORDER BY id DESC LIMIT 1000',
+      source: "system",
+      message: "Disk space low on /var partition",
+      details: "Available: 2.1GB, Used: 87%",
     },
     {
       timestamp: "2024-01-20 16:43:08",
-      level: "info",
+      level: "error",
       source: "system",
-      message: "User login successful",
-      details: "User: admin, IP: 192.168.1.100, Browser: Chrome/120.0",
+      message: "Failed to start service: docker",
+      details: "Exit code: 1, Error: Permission denied",
     },
     {
       timestamp: "2024-01-20 16:42:30",
-      level: "debug",
-      source: "application",
-      message: "Cache miss for key: user_profile_1001",
-      details: null,
-    },
-    {
-      timestamp: "2024-01-20 16:41:45",
-      level: "error",
-      source: "php",
-      message: "Fatal error: Uncaught Exception",
-      details:
-        "Stack trace:\n#0 /var/www/html/index.php(25): Database->connect()\n#1 {main}",
-    },
-    {
-      timestamp: "2024-01-20 16:40:12",
       level: "info",
-      source: "nginx",
-      message: "Server started successfully",
-      details: "PID: 1234, Port: 80, Workers: 4",
+      source: "system",
+      message: "Cron job executed successfully",
+      details: "Job: backup-database, Duration: 2.3s",
     },
   ]);
 });
@@ -216,29 +424,105 @@ const filteredLogs = computed(() => {
 
   let filtered = logs.value;
 
-  // 按级别过滤
-  if (selectedLevel.value !== "all") {
-    filtered = filtered.filter((log) => log.level === selectedLevel.value);
+  // Nginx访问日志筛选
+  if (selectedLogType.value === 'nginx-access') {
+    // 按状态码过滤
+    if (selectedStatusCode.value !== "all") {
+      if (selectedStatusCode.value.endsWith('xx')) {
+        const prefix = selectedStatusCode.value.charAt(0);
+        filtered = filtered.filter((log: any) => log.status.startsWith(prefix));
+      } else {
+        filtered = filtered.filter((log: any) => log.status === selectedStatusCode.value);
+      }
+    }
+    
+    // 按IP地址过滤
+    if (ipFilter.value) {
+      filtered = filtered.filter((log: any) => 
+        log.ip.includes(ipFilter.value)
+      );
+    }
+  }
+  
+  // MySQL日志筛选
+  else if (selectedLogType.value === 'mysql') {
+    // 按查询类型过滤
+    if (selectedQueryType.value !== "all") {
+      filtered = filtered.filter((log: any) => {
+        if (selectedQueryType.value === 'slow') {
+          return log.queryType === 'slow' || parseFloat(log.duration) > 1.0;
+        }
+        return log.queryType === selectedQueryType.value;
+      });
+    }
+    
+    // 按执行时间过滤
+    if (durationFilter.value) {
+      const maxDuration = parseFloat(durationFilter.value) / 1000; // 转换为秒
+      filtered = filtered.filter((log: any) => 
+        parseFloat(log.duration) >= maxDuration
+      );
+    }
+  }
+  
+  // 系统日志筛选
+  else {
+    // 按级别过滤
+    if (selectedLevel.value !== "all") {
+      filtered = filtered.filter((log: any) => log.level === selectedLevel.value);
+    }
+    
+
   }
 
-  // 按搜索关键词过滤
+  // 通用搜索关键词过滤
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (log) =>
-        log.message.toLowerCase().includes(query) ||
-        log.source.toLowerCase().includes(query) ||
-        (log.details && log.details.toLowerCase().includes(query))
-    );
+    filtered = filtered.filter((log: any) => {
+      const searchFields = [log.message];
+      
+      // 根据日志类型添加不同的搜索字段
+      if (selectedLogType.value === 'nginx-access') {
+        searchFields.push(log.ip, log.method, log.url, log.userAgent);
+      } else if (selectedLogType.value === 'mysql') {
+        searchFields.push(log.database, log.table, log.queryType);
+      } else {
+        searchFields.push(log.source);
+        if (log.details) searchFields.push(log.details);
+      }
+      
+      return searchFields.some(field => 
+        field && field.toLowerCase().includes(query)
+      );
+    });
   }
 
   return filtered;
+});
+
+// 监听日志类型变化，自动刷新数据
+watch(selectedLogType, () => {
+  refresh();
 });
 
 // 方法
 const getCurrentLogTitle = () => {
   const logType = logTypes.find((type) => type.value === selectedLogType.value);
   return logType ? logType.label : "系统日志";
+};
+
+const getLogEntryClass = (log: any) => {
+  if (selectedLogType.value === 'nginx-access') {
+    const status = parseInt(log.status);
+    if (status >= 500) return "log-error";
+    if (status >= 400) return "log-warning";
+    return "log-info";
+  } else if (selectedLogType.value === 'mysql') {
+    const duration = parseFloat(log.duration);
+    if (duration > 2.0 || log.queryType === 'slow') return "log-warning";
+    return "log-info";
+  }
+  return getLogLevelClass(log.level);
 };
 
 const getLogLevelClass = (level: string) => {
@@ -249,6 +533,51 @@ const getLogLevelClass = (level: string) => {
     debug: "log-debug",
   };
   return classMap[level] || "log-info";
+};
+
+const getMethodClass = (method: string) => {
+  const classMap: Record<string, string> = {
+    GET: "method-get",
+    POST: "method-post",
+    PUT: "method-put",
+    DELETE: "method-delete",
+  };
+  return classMap[method] || "method-default";
+};
+
+const getStatusClass = (status: string) => {
+  const code = parseInt(status);
+  if (code >= 500) return "status-error";
+  if (code >= 400) return "status-warning";
+  if (code >= 300) return "status-info";
+  return "status-success";
+};
+
+const getQueryTypeClass = (queryType: string) => {
+  const classMap: Record<string, string> = {
+    SELECT: "query-select",
+    INSERT: "query-insert",
+    UPDATE: "query-update",
+    DELETE: "query-delete",
+    slow: "query-slow",
+  };
+  return classMap[queryType] || "query-default";
+};
+
+const getDurationClass = (duration: string) => {
+  const time = parseFloat(duration);
+  if (time > 2.0) return "duration-slow";
+  if (time > 1.0) return "duration-medium";
+  return "duration-fast";
+};
+
+const getSearchPlaceholder = () => {
+  if (selectedLogType.value === 'nginx-access') {
+    return "搜索URL、User-Agent...";
+  } else if (selectedLogType.value === 'mysql') {
+    return "搜索SQL、数据库、表名...";
+  }
+  return "搜索日志...";
 };
 
 const getLogLevelIcon = (level: string) => {
@@ -263,6 +592,14 @@ const getLogLevelIcon = (level: string) => {
 
 const loadLogs = () => {
   console.log("加载日志类型:", selectedLogType.value);
+  // 重置筛选条件
+  selectedLevel.value = "all";
+  selectedStatusCode.value = "all";
+  selectedQueryType.value = "all";
+
+  ipFilter.value = "";
+  durationFilter.value = "";
+  searchQuery.value = "";
   refresh();
 };
 
@@ -524,5 +861,186 @@ const toggleRealTime = () => {
 .text-center.py-8.text-gray-500 .pi {
   color: var(--text-tertiary) !important;
   transition: color 0.3s ease;
+}
+
+/* Nginx访问日志样式 */
+.log-ip {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+  transition: all 0.3s ease;
+}
+
+.log-method {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.method-get {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.method-post {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.method-put {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.method-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.method-default {
+  background: rgba(156, 163, 175, 0.1);
+  color: var(--text-tertiary);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.log-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.status-success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.status-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* MySQL日志样式 */
+.log-query-type {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.query-select {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.query-insert {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.query-update {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.query-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.query-slow {
+  background: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.query-default {
+  background: rgba(156, 163, 175, 0.1);
+  color: var(--text-tertiary);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.log-database {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+  transition: all 0.3s ease;
+}
+
+.log-duration {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.duration-fast {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.duration-medium {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.duration-slow {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* 响应式布局优化 */
+.w-32 {
+  width: 8rem;
+}
+
+@media (max-width: 768px) {
+  .log-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .w-32, .w-64 {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }
 </style>

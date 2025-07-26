@@ -20,6 +20,13 @@
       </div>
       <div class="flex gap-2">
         <Button
+          :label="isAllSelected ? '取消全选' : '全选'"
+          :icon="isAllSelected ? 'pi pi-times' : 'pi pi-check'"
+          size="small"
+          outlined
+          @click="toggleSelectAll"
+        />
+        <Button
           label="新建文件夹"
           icon="pi pi-folder-plus"
           @click="showCreateFolder = true"
@@ -33,20 +40,38 @@
       </div>
     </div>
 
+    <!-- 批量操作工具栏 -->
+    <div v-if="selectedFiles.length > 0" class="flex items-center justify-between mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+      <span class="text-sm text-blue-700">已选择 {{ selectedFiles.length }} 个项目</span>
+      <div class="flex gap-2">
+        <Button label="取消选择" size="small" text @click="clearSelection" />
+        <Button label="批量删除" size="small" severity="danger" @click="batchDelete" />
+      </div>
+    </div>
+
     <!-- 文件列表 -->
-    <DataTable
-      :value="files"
-      :loading="pending"
-      responsive-layout="scroll"
-      selection-mode="multiple"
-      v-model:selection="selectedFiles"
-    >
+    <Card>
+      <template #content>
+        <DataTable
+          ref="dt"
+          :value="files"
+          :loading="pending"
+          responsive-layout="scroll"
+          selection-mode="multiple"
+          v-model:selection="selectedFiles"
+          :metaKeySelection="false"
+        >
+        <template #loading>
+          <div class="loading-overlay">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+          </div>
+        </template>
       <Column selection-mode="multiple" header-style="width: 3rem" />
       <Column field="name" header="名称">
         <template #body="slotProps">
           <div
             class="flex items-center gap-2 cursor-pointer"
-            @click="handleFileClick(slotProps.data)"
+            @click.stop="handleFileClick(slotProps.data)"
           >
             <i :class="getFileIcon(slotProps.data)" />
             <span>{{ slotProps.data.name }}</span>
@@ -76,7 +101,9 @@
           </div>
         </template>
       </Column>
-    </DataTable>
+        </DataTable>
+      </template>
+    </Card>
 
     <!-- 新建文件夹对话框 -->
     <Dialog
@@ -108,9 +135,22 @@
       :header="`编辑文件: ${editingFile?.name || ''}`"
       :style="{ width: '90vw', height: '80vh' }"
       :maximizable="true"
+      @hide="closeEditor"
     >
       <div class="editor-container">
-        <div ref="editorContainer" class="monaco-editor-container"></div>
+        <VueMonacoEditor
+          v-model:value="fileContent"
+          :language="getLanguageFromFileName(editingFile?.name || '')"
+          theme="vs-dark"
+          :options="{
+            automaticLayout: true,
+            fontSize: 14,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            wordWrap: 'on'
+          }"
+          style="height: 60vh;"
+        />
       </div>
       <template #footer>
         <Button label="取消" text @click="closeEditor" />
@@ -130,6 +170,8 @@
 </template>
 
 <script setup lang="ts">
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor';
+import Checkbox from 'primevue/checkbox';
 import type { FileItem } from "~/types";
 
 // 页面 meta
@@ -141,16 +183,18 @@ useHead({
 const api = useApi();
 
 // 响应式数据
-const currentPath = ref("/");
+const route = useRoute();
+const router = useRouter();
+const currentPath = ref(route.query.path as string || "/");
 const selectedFiles = ref<FileItem[]>([]);
 const showCreateFolder = ref(false);
 const newFolderName = ref("");
 const fileInput = ref<HTMLInputElement>();
+const dt = ref();
 const showEditor = ref(false);
 const editingFile = ref<any>(null);
 const fileContent = ref("");
-const editorContainer = ref<HTMLElement>();
-let monacoEditor: any = null;
+
 
 // 路径分段
 const pathSegments = computed(() => {
@@ -167,38 +211,20 @@ const {
   async () => {
     try {
       const result = await api.getFiles(currentPath.value);
+      console.log('Files API result:', result);
       return result;
     } catch (error) {
       console.error("获取文件列表失败:", error);
-      // 返回模拟数据作为后备
       return {
         currentPath: currentPath.value,
-        files: [
-          {
-            name: "documents",
-            isDir: true,
-            size: 0,
-            permissions: "drwxr-xr-x",
-            owner: "root",
-            group: "root",
-            modTime: "2024-01-15T10:30:00Z",
-            path: "/documents",
-          },
-          {
-            name: "config.json",
-            isDir: false,
-            size: 2560,
-            permissions: "-rw-r--r--",
-            owner: "root",
-            group: "root",
-            modTime: "2024-01-14T15:20:00Z",
-            path: "/config.json",
-          },
-        ],
+        files: [],
       };
     }
   },
-  { default: () => ({ currentPath: "/", files: [] }) }
+  { 
+    default: () => ({ currentPath: "/", files: [] }),
+    server: false
+  }
 );
 
 // 转换文件数据格式以兼容现有组件
@@ -211,10 +237,34 @@ const files = computed(() => {
     isDir: file.isDir,
     size: file.isDir ? "-" : formatFileSize(file.size),
     permissions: file.permissions,
-    owner: file.owner,
+    owner: `${file.owner}:${file.group}`,
     modified: formatDate(file.modTime),
     path: file.path,
   }));
+});
+
+// 监听路由变化
+watch(() => route.query.path, (newPath) => {
+  const pathValue = (newPath as string) || '/';
+  if (pathValue !== currentPath.value) {
+    currentPath.value = pathValue;
+  }
+});
+
+// 监听 currentPath 变化并刷新数据
+watch(currentPath, () => {
+  selectedFiles.value = []; // 清除选择状态
+  refresh();
+});
+
+
+
+// 同步API返回的currentPath
+watch(filesData, (newData) => {
+  if (newData?.currentPath && newData.currentPath !== currentPath.value) {
+    currentPath.value = newData.currentPath;
+    router.replace({ query: { path: newData.currentPath } });
+  }
 });
 
 // 格式化文件大小
@@ -258,7 +308,11 @@ const getFileIcon = (file: any) => {
 
 const handleFileClick = async (file: any) => {
   if (file.isDir || file.type === "directory") {
-    navigateToPath(file.path);
+    selectedFiles.value = []; // 清除选中状态
+    const newPath = currentPath.value === "/" ? `/${file.name}` : `${currentPath.value}/${file.name}`;
+    currentPath.value = newPath;
+    await router.push({ query: { path: newPath } });
+    refresh();
   } else {
     await openFileEditor(file);
   }
@@ -268,22 +322,18 @@ const openFileEditor = async (file: any) => {
   try {
     const content = await api.getFileContent(file.path);
     editingFile.value = file;
-    fileContent.value = content;
+    fileContent.value = content.content || content;
     showEditor.value = true;
-    
-    await nextTick();
-    initMonacoEditor();
   } catch (error) {
     console.error("读取文件内容失败:", error);
   }
 };
 
 const saveFile = async () => {
-  if (!editingFile.value || !monacoEditor) return;
+  if (!editingFile.value) return;
   
   try {
-    const content = monacoEditor.getValue();
-    await api.saveFileContent(editingFile.value.path, content);
+    await api.saveFileContent(editingFile.value.path, fileContent.value);
     showEditor.value = false;
   } catch (error) {
     console.error("保存文件失败:", error);
@@ -291,13 +341,13 @@ const saveFile = async () => {
 };
 
 const closeEditor = () => {
-  if (monacoEditor) {
-    monacoEditor.dispose();
-    monacoEditor = null;
-  }
   showEditor.value = false;
   editingFile.value = null;
   fileContent.value = "";
+  // 确保焦点返回到页面
+  nextTick(() => {
+    document.body.focus();
+  });
 };
 
 const getLanguageFromFileName = (fileName: string) => {
@@ -325,38 +375,66 @@ const getLanguageFromFileName = (fileName: string) => {
   return languageMap[ext || ''] || 'plaintext';
 };
 
-const initMonacoEditor = async () => {
-  if (!editorContainer.value) return;
-  
-  try {
-    const monaco = await import('monaco-editor');
-    
-    monacoEditor = monaco.editor.create(editorContainer.value, {
-      value: fileContent.value,
-      language: getLanguageFromFileName(editingFile.value?.name || ''),
-      theme: 'vs-dark',
-      automaticLayout: true,
-      fontSize: 14,
-      minimap: { enabled: false },
-      scrollBeyondLastLine: false,
-      wordWrap: 'on'
-    });
-  } catch (error) {
-    console.error('初始化Monaco Editor失败:', error);
-  }
-};
 
-const navigateToPath = (path: string) => {
+
+const navigateToPath = async (path: string) => {
   currentPath.value = path;
+  await router.push({ query: { path } });
+  await nextTick();
+  refresh();
 };
 
 const navigateToSegment = (index: number) => {
   const segments = pathSegments.value.slice(0, index + 1);
-  navigateToPath("/" + segments.join("/"));
+  const newPath = segments.length > 0 ? "/" + segments.join("/") : "/";
+  navigateToPath(newPath);
 };
 
 const refreshFiles = () => {
   refresh();
+};
+
+const selectAll = () => {
+  selectedFiles.value = [...files.value];
+};
+
+const clearSelection = () => {
+  selectedFiles.value = [];
+};
+
+const isAllSelected = computed(() => {
+  return files.value.length > 0 && selectedFiles.value.length === files.value.length;
+});
+
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selectedFiles.value = [];
+  } else {
+    selectedFiles.value = [...files.value];
+  }
+};
+
+
+
+
+
+
+
+const batchDelete = async () => {
+  if (selectedFiles.value.length === 0) return;
+  
+  const fileNames = selectedFiles.value.map(f => f.name).join(', ');
+  if (confirm(`确定要删除这 ${selectedFiles.value.length} 个项目吗？\n${fileNames}`)) {
+    try {
+      for (const file of selectedFiles.value) {
+        await api.deleteFile(file.path);
+      }
+      selectedFiles.value = [];
+      await refresh();
+    } catch (error) {
+      console.error("批量删除失败:", error);
+    }
+  }
 };
 
 const createFolder = async () => {
@@ -458,8 +536,60 @@ const deleteFile = async (file: FileItem) => {
   overflow: hidden;
 }
 
-.monaco-editor-container {
-  width: 100%;
-  height: 100%;
+.editor-container {
+  height: 60vh;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* 骨架屏样式 */
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  display: block;
+}
+
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 深色模式骨架屏 */
+@media (prefers-color-scheme: dark) {
+  .skeleton-line {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+    background-size: 200% 100%;
+  }
+}
+
+/* 加载遮罩样式 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loading-overlay {
+    background: rgba(0, 0, 0, 0.8);
+  }
 }
 </style>

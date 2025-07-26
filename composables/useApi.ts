@@ -15,9 +15,6 @@ import type {
 } from '~/types'
 
 export const useApi = () => {
-  const config = useRuntimeConfig()
-  const API_BASE_URL = config.public.apiBaseUrl
-
   // 通用API请求方法，支持完整的错误处理
   const apiRequest = async <T>(endpoint: string, options: RequestInit = {}, isLoginRequest = false): Promise<T> => {
     const authStore = useAuthStore()
@@ -30,7 +27,7 @@ export const useApi = () => {
     }
 
     try {
-      const response = await $fetch<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, {
+      const response = await $fetch<ApiResponse<T>>(endpoint, {
         ...options,
         method: (options.method as any) || 'GET',
         headers: {
@@ -88,8 +85,7 @@ export const useApi = () => {
     body: JSON.stringify({ pid, signal })
   })
 
-  // 文件管理API
-  const getFiles = (path: string = '/home') => apiRequest<{ currentPath: string, files: FileItem[] }>(`/api/auth/files?path=${encodeURIComponent(path)}`)
+  const getFiles = (path: string = '/') => apiRequest<{ currentPath: string, files: FileItem[] }>(`/api/auth/files?path=${encodeURIComponent(path)}`)
 
   const uploadFile = async (path: string, file: File) => {
     const authStore = useAuthStore()
@@ -104,7 +100,7 @@ export const useApi = () => {
     formData.append('path', path)
 
     try {
-      const response = await $fetch<ApiResponse<void>>(`${API_BASE_URL}/api/auth/files/upload`, {
+      const response = await $fetch<ApiResponse<void>>('/api/auth/files/upload', {
         method: 'POST',
         body: formData,
         headers: {
@@ -242,7 +238,7 @@ export const useApi = () => {
   // 认证API - 专门的登录方法，不使用通用的apiRequest
   const login = async (username: string, password: string): Promise<LoginResponse> => {
     try {
-      const response = await $fetch<any>(`${API_BASE_URL}/api/public/login`, {
+      const response = await $fetch<any>('/api/public/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

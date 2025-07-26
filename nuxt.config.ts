@@ -43,10 +43,13 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            apiBaseUrl: 'http://lxhtt-mac-mini:8080'
+            apiBaseUrl: ''
         }
     },
     nitro: {
         compressPublicAssets: true
+    },
+    routeRules: {
+        '/api/**': { proxy: 'http://lxhtt-mac-mini:8080/api/**' }
     }
 })
