@@ -8,6 +8,10 @@
         "-y",
         "apifox-mcp-server@latest",
         "--site-id=5460959"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "read_project_oas_ref_resources_98xji1"
       ]
     }
   }

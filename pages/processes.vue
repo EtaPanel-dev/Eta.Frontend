@@ -246,28 +246,41 @@ const signalOptions = [
   { label: "HUP (挂起)", value: "HUP" },
 ];
 
-// 使用系统store
-const systemStore = useSystemStore();
+// 使用认证API
+const authStore = useAuthStore();
+const authenticatedApi = useAuthenticatedApi();
 
 // 获取进程数据
 const {
   data: processes,
   pending,
   refresh,
-} = await useLazyAsyncData("processes", async () => {
-  try {
-    return await systemStore.refreshProcesses();
-  } catch (error) {
-    console.error("获取进程列表失败:", error);
-    return [];
+} = await useLazyAsyncData(
+  "processes",
+  async () => {
+    // 检查认证状态
+    if (!authStore.isAuthenticated) {
+      return [];
+    }
+
+    try {
+      return await authenticatedApi.getProcesses();
+    } catch (error) {
+      console.error("获取进程列表失败:", error);
+      return [];
+    }
+  },
+  {
+    // 只有在认证状态下才执行
+    default: () => [],
   }
-});
+);
 
 // 计算属性
 const filteredProcesses = computed(() => {
-  if (!systemStore.processes) return [];
+  if (!processes.value) return [];
 
-  let filtered = systemStore.processes;
+  let filtered = processes.value;
 
   // 搜索过滤
   if (searchQuery.value) {
@@ -298,7 +311,9 @@ const filteredProcesses = computed(() => {
 
 // 方法
 const refreshProcesses = async () => {
-  await systemStore.refreshProcesses();
+  if (!authStore.isAuthenticated) {
+    return;
+  }
   await refresh();
 };
 
@@ -323,12 +338,15 @@ const killSelectedProcesses = () => {
 };
 
 const confirmKillProcess = async () => {
-  if (!processToKill.value) return;
+  if (!processToKill.value || !authStore.isAuthenticated) return;
 
   killing.value = true;
 
   try {
-    await systemStore.killProcess(processToKill.value.pid, killSignal.value);
+    await authenticatedApi.killProcess(
+      processToKill.value.pid,
+      killSignal.value
+    );
 
     // 刷新进程列表
     await refreshProcesses();
@@ -350,8 +368,12 @@ const confirmKillProcess = async () => {
 
 // 自动刷新
 onMounted(() => {
-  // 每10秒自动刷新一次进程列表
-  const timer = setInterval(refreshProcesses, 10000);
+  // 每10秒自动刷新一次进程列表，但只有在认证状态下才刷新
+  const timer = setInterval(() => {
+    if (authStore.isAuthenticated) {
+      refreshProcesses();
+    }
+  }, 10000);
 
   onUnmounted(() => {
     clearInterval(timer);

@@ -91,8 +91,14 @@ const handleLogin = async () => {
 
   try {
     await authStore.login(form.value.username, form.value.password);
+
+    // 等待一下确保状态已更新
+    await nextTick();
+
     const redirect = (route.query.redirect as string) || "/";
-    await router.push(redirect);
+
+    // 使用replace而不是push，避免返回到登录页
+    await router.replace(redirect);
   } catch (error: any) {
     notification.showError("登录失败", error.message || "用户名或密码错误");
   } finally {

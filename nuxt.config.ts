@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     },
     modules: [
         '@primevue/nuxt-module',
-        '@pinia/nuxt'
+        '@pinia/nuxt',
+        '@pinia-plugin-persistedstate/nuxt'
     ],
     primevue: {
         options: {

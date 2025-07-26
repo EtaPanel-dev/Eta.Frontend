@@ -1,6 +1,5 @@
 import type {
   ApiResponse,
-  LoginRequest,
   LoginResponse,
   SystemInfo,
   CpuInfo,
@@ -21,7 +20,14 @@ export const useApi = () => {
 
   // 通用API请求方法，支持完整的错误处理
   const apiRequest = async <T>(endpoint: string, options: RequestInit = {}, isLoginRequest = false): Promise<T> => {
-    const token = useCookie('auth-token')
+    const authStore = useAuthStore()
+
+    // 如果不是登录请求，检查认证状态
+    if (!isLoginRequest) {
+      if (!authStore.isAuthenticated) {
+        throw new Error('用户未登录或登录已过期')
+      }
+    }
 
     try {
       const response = await $fetch<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, {
@@ -29,7 +35,7 @@ export const useApi = () => {
         method: (options.method as any) || 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token.value ? `Bearer ${token.value}` : '',
+          'Authorization': authStore.token || '',
           ...options.headers,
         },
       })
@@ -49,8 +55,7 @@ export const useApi = () => {
         }
 
         // 其他请求的401错误，表示token过期
-        token.value = null
-        await navigateTo('/login')
+        authStore.logout()
         throw new Error('登录已过期，请重新登录')
       }
 
@@ -79,7 +84,13 @@ export const useApi = () => {
   const getFiles = (path: string = '/home') => apiRequest<{ currentPath: string, files: FileItem[] }>(`/api/auth/files?path=${encodeURIComponent(path)}`)
 
   const uploadFile = async (path: string, file: File) => {
-    const token = useCookie('auth-token')
+    const authStore = useAuthStore()
+
+    // 检查认证状态
+    if (!authStore.isAuthenticated) {
+      throw new Error('用户未登录或登录已过期')
+    }
+
     const formData = new FormData()
     formData.append('file', file)
     formData.append('path', path)
@@ -89,7 +100,7 @@ export const useApi = () => {
         method: 'POST',
         body: formData,
         headers: {
-          'Authorization': token.value ? `Bearer ${token.value}` : ''
+          'Authorization': authStore.token || ''
         }
       })
 
@@ -100,8 +111,7 @@ export const useApi = () => {
       return response.data
     } catch (error: any) {
       if (error.status === 401) {
-        token.value = null
-        await navigateTo('/login')
+        authStore.logout()
         throw new Error('登录已过期，请重新登录')
       }
 
@@ -224,7 +234,7 @@ export const useApi = () => {
   // 认证API - 专门的登录方法，不使用通用的apiRequest
   const login = async (username: string, password: string): Promise<LoginResponse> => {
     try {
-      const response = await $fetch<ApiResponse<LoginResponse>>(`${API_BASE_URL}/api/public/login`, {
+      const response = await $fetch<any>(`${API_BASE_URL}/api/public/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,9 +242,17 @@ export const useApi = () => {
         body: JSON.stringify({ username, password })
       })
 
-      // 检查API响应状态
-      if (response.code !== 200) {
+      console.log('Login response:', response) // 调试用
+
+      // 检查API响应状态 - 适配实际的响应格式
+      const statusCode = response.code || response.status
+      if (statusCode !== 200) {
         throw new Error(response.message || '登录失败')
+      }
+
+      // 确保返回的数据包含必要的字段
+      if (!response.data || !response.data.token) {
+        throw new Error('登录响应数据格式错误')
       }
 
       return response.data
@@ -243,6 +261,15 @@ export const useApi = () => {
 
       // 标记错误已被处理，避免全局错误处理器重复处理
       error.handled = true
+
+      // 如果是$fetch抛出的HTTP错误，需要特殊处理
+      if (error.data && typeof error.data === 'object') {
+        // 处理服务器返回的结构化错误响应
+        const statusCode = error.data.code || error.data.status
+        if (statusCode && statusCode !== 200) {
+          throw new Error(error.data.message || '登录失败')
+        }
+      }
 
       // 登录接口的错误处理，不进行token清理和跳转
       if (error.status === 401) {
