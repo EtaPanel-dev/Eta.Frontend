@@ -10,6 +10,9 @@
       <div class="surface-card p-5 shadow-2 border-round w-full">
         <div class="text-center mb-4">
           <div class="text-900 text-2xl font-medium mb-2">用户登录</div>
+          <div class="demo-info">
+            <small class="text-600">演示账户：<strong>demo</strong> 密码：<strong>Abc123456</strong></small>
+          </div>
         </div>
 
         <form @submit.prevent="handleLogin">
@@ -173,6 +176,14 @@ const handleLogin = async () => {
 .login-btn {
   width: 100%;
   margin-top: 0.5rem;
+}
+
+.demo-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--surface-100);
+  border-radius: 0.375rem;
+  border: 1px solid var(--surface-300);
 }
 
 @media (max-width: 640px) {
