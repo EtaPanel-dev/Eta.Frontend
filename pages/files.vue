@@ -78,11 +78,12 @@
       <Column field="name" header="名称">
         <template #body="slotProps">
           <div
-            class="flex items-center gap-2 cursor-pointer"
+            class="flex items-center gap-2 cursor-pointer relative py-1"
             @click.stop="handleFileClick(slotProps.data)"
           >
-            <i :class="getFileIcon(slotProps.data)" />
-            <span>{{ slotProps.data.name }}</span>
+            <i :class="getFileIcon(slotProps.data)" class="flex-shrink-0" />
+            <span class="flex-1">{{ slotProps.data.name }}</span>
+            <i v-if="slotProps.data.isSymlink" class="pi pi-link text-xs text-blue-500 flex-shrink-0" title="符号链接" />
           </div>
         </template>
       </Column>
@@ -318,6 +319,7 @@ const files = computed(() => {
     name: file.name,
     type: file.isDir ? "directory" : "file",
     isDir: file.isDir,
+    isSymlink: file.isSymlink,
     size: file.isDir ? "-" : formatFileSize(file.size),
     permissions: file.permissions,
     owner: `${file.owner}:${file.group}`,

@@ -184,6 +184,7 @@ export interface FileItem {
   owner: string
   modified: string
   path: string
+  isSymlink?: boolean
 }
 
 export interface MenuItem {
