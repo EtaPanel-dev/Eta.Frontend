@@ -189,6 +189,27 @@
       </template>
     </Dialog>
 
+    <!-- 图片预览对话框 -->
+    <Dialog
+      v-model:visible="showImagePreview"
+      modal
+      header="图片预览"
+      :style="{ width: '80vw', height: '80vh' }"
+      :maximizable="true"
+    >
+      <div class="flex items-center justify-center" style="height: 70vh;">
+        <img
+          v-if="previewImageUrl"
+          :src="previewImageUrl"
+          alt="预览图片"
+          class="max-w-full max-h-full object-contain"
+        />
+      </div>
+      <template #footer>
+        <Button label="关闭" @click="closeImagePreview" />
+      </template>
+    </Dialog>
+
     <!-- 隐藏的文件上传输入 -->
     <input
       ref="fileInput"
@@ -252,6 +273,8 @@ const dt = ref();
 const showEditor = ref(false);
 const editingFile = ref<any>(null);
 const fileContent = ref("");
+const showImagePreview = ref(false);
+const previewImageUrl = ref("");
 
 
 // 路径分段
@@ -430,7 +453,14 @@ const handleFileClick = async (file: any) => {
     const newPath = currentPath.value === "/" ? `/${file.name}` : `${currentPath.value}/${file.name}`;
     await router.push({ path: route.path, query: { path: newPath } });
   } else {
-    await openFileEditor(file);
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const imageExts = ["jpg", "jpeg", "png", "gif", "svg", "webp", "bmp"];
+    
+    if (imageExts.includes(ext)) {
+      openImagePreview(file);
+    } else {
+      await openFileEditor(file);
+    }
   }
 };
 
@@ -466,6 +496,18 @@ const closeEditor = () => {
   showEditor.value = false;
   editingFile.value = null;
   fileContent.value = "";
+};
+
+const openImagePreview = (file: any) => {
+  const config = useRuntimeConfig();
+  const token = useCookie("auth-token");
+  previewImageUrl.value = `${config.public.apiBaseUrl}/api/auth/files/download?path=${encodeURIComponent(file.path)}&token=${token.value}`;
+  showImagePreview.value = true;
+};
+
+const closeImagePreview = () => {
+  showImagePreview.value = false;
+  previewImageUrl.value = "";
 };
 
 const onEditorMount = () => {
