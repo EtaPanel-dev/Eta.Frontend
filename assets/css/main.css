@@ -27,6 +27,9 @@
 /* 9. 滚动条样式 */
 @import "./scrollbar.css";
 
+/* 10. Toast样式 */
+@import "./toast.css";
+
 /* 修复中文字体显示 */
 .p-card-title,
 .text-sm,

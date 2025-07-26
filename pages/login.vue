@@ -82,7 +82,7 @@ const loading = ref(false);
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
-const toast = useToast();
+const notification = useNotification();
 
 const currentYear = computed(() => new Date().getFullYear());
 
@@ -96,12 +96,7 @@ const handleLogin = async () => {
     const redirect = (route.query.redirect as string) || "/";
     await router.push(redirect);
   } catch (error: any) {
-    toast.add({
-      severity: "error",
-      summary: "登录失败",
-      detail: error.message || "用户名或密码错误",
-      life: 3000,
-    });
+    notification.showError("登录失败", error.message || "用户名或密码错误");
   } finally {
     loading.value = false;
   }

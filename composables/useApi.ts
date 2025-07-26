@@ -1,103 +1,217 @@
-import type { Container, SystemInfo, FileItem } from '~/types'
+import type {
+  ApiResponse,
+  LoginRequest,
+  LoginResponse,
+  SystemInfo,
+  CpuInfo,
+  MemoryInfo,
+  DiskInfo,
+  NetworkInfo,
+  ProcessInfo,
+  NginxSite,
+  NginxStatus,
+  CrontabEntry,
+  SSLCertificate,
+  FileItem
+} from '~/types'
 
 export const useApi = () => {
   const config = useRuntimeConfig()
   const API_BASE_URL = config.public.apiBaseUrl
-  
-  
 
+  // 通用API请求方法，支持完整的错误处理
   const apiRequest = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
     const token = useCookie('auth-token')
-    const response = await $fetch<T>(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token.value ? `Bearer ${token.value}` : '',
-        ...options.headers,
-      },
-    })
-    return response
+
+    try {
+      const response = await $fetch<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        method: (options.method as any) || 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token.value ? `Bearer ${token.value}` : '',
+          ...options.headers,
+        },
+      })
+
+      // 检查API响应状态
+      if (response.code !== 200) {
+        throw new Error(response.message || '请求失败')
+      }
+
+      return response.data
+    } catch (error: any) {
+      // 处理401未授权错误
+      if (error.status === 401) {
+        token.value = null
+        await navigateTo('/login')
+        throw new Error('登录已过期，请重新登录')
+      }
+
+      // 处理其他HTTP错误
+      if (error.status) {
+        throw new Error(error.data?.message || `请求失败 (${error.status})`)
+      }
+
+      // 处理网络错误
+      throw new Error(error.message || '网络请求失败')
+    }
   }
   // 系统监控API
   const getSystemInfo = () => apiRequest<SystemInfo>('/api/auth/system')
-  const getCpuInfo = () => apiRequest('/api/auth/system/cpu')
-  const getMemoryInfo = () => apiRequest('/api/auth/system/memory')
-  const getDiskInfo = () => apiRequest('/api/auth/system/disk')
-  const getNetworkInfo = () => apiRequest('/api/auth/system/network')
-  const getProcesses = () => apiRequest('/api/auth/system/processes')
-  const killProcess = (pid: number, signal: string = 'TERM') => apiRequest('/api/auth/system/process/kill', {
+  const getCpuInfo = () => apiRequest<CpuInfo>('/api/auth/system/cpu')
+  const getMemoryInfo = () => apiRequest<MemoryInfo>('/api/auth/system/memory')
+  const getDiskInfo = () => apiRequest<DiskInfo[]>('/api/auth/system/disk')
+  const getNetworkInfo = () => apiRequest<NetworkInfo>('/api/auth/system/network')
+  const getProcesses = () => apiRequest<ProcessInfo[]>('/api/auth/system/processes')
+  const killProcess = (pid: number, signal: string = 'TERM') => apiRequest<void>('/api/auth/system/process/kill', {
     method: 'POST',
     body: JSON.stringify({ pid, signal })
   })
 
   // 文件管理API
-  const getFiles = (path: string = '/home') => apiRequest(`/api/auth/files?path=${encodeURIComponent(path)}`)
+  const getFiles = (path: string = '/home') => apiRequest<{ currentPath: string, files: FileItem[] }>(`/api/auth/files?path=${encodeURIComponent(path)}`)
+
   const uploadFile = async (path: string, file: File) => {
     const token = useCookie('auth-token')
     const formData = new FormData()
     formData.append('file', file)
     formData.append('path', path)
-    return await $fetch(`${API_BASE_URL}/api/auth/files/upload`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Authorization': token.value ? `Bearer ${token.value}` : ''
+
+    try {
+      const response = await $fetch<ApiResponse<void>>(`${API_BASE_URL}/api/auth/files/upload`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': token.value ? `Bearer ${token.value}` : ''
+        }
+      })
+
+      if (response.code !== 200) {
+        throw new Error(response.message || '上传失败')
       }
-    })
+
+      return response.data
+    } catch (error: any) {
+      if (error.status === 401) {
+        token.value = null
+        await navigateTo('/login')
+        throw new Error('登录已过期，请重新登录')
+      }
+      throw new Error(error.data?.message || error.message || '上传失败')
+    }
   }
-  const deleteFile = (path: string) => apiRequest(`/api/auth/files?path=${encodeURIComponent(path)}`, { method: 'DELETE' })
-  const createDirectory = (path: string) => apiRequest('/api/auth/files/mkdir', {
+
+  const deleteFile = (path: string) => apiRequest<void>(`/api/auth/files?path=${encodeURIComponent(path)}`, { method: 'DELETE' })
+  const createDirectory = (path: string) => apiRequest<void>('/api/auth/files/mkdir', {
     method: 'POST',
     body: JSON.stringify({ path })
   })
-  const getFileContent = (path: string) => apiRequest(`/api/auth/files/content?path=${encodeURIComponent(path)}`)
-  const saveFileContent = (path: string, content: string) => apiRequest('/api/auth/files/content', {
+  const getFileContent = (path: string) => apiRequest<{ content: string }>(`/api/auth/files/content?path=${encodeURIComponent(path)}`)
+  const saveFileContent = (path: string, content: string) => apiRequest<void>('/api/auth/files/content', {
     method: 'POST',
     body: JSON.stringify({ path, content })
   })
+  const copyFile = (source: string, destination: string) => apiRequest<void>('/api/auth/files/copy', {
+    method: 'POST',
+    body: JSON.stringify({ source, destination })
+  })
+  const moveFile = (source: string, destination: string) => apiRequest<void>('/api/auth/files/move', {
+    method: 'POST',
+    body: JSON.stringify({ source, destination })
+  })
+  const compressFiles = (files: string[], output: string) => apiRequest<void>('/api/auth/files/compress', {
+    method: 'POST',
+    body: JSON.stringify({ files, output })
+  })
+  const extractFile = (file: string, destination: string) => apiRequest<void>('/api/auth/files/extract', {
+    method: 'POST',
+    body: JSON.stringify({ file, destination })
+  })
+  const getFilePermissions = (path: string) => apiRequest<{ permissions: string, owner: string, group: string }>(`/api/auth/files/permissions?path=${encodeURIComponent(path)}`)
+  const setFilePermissions = (path: string, permissions: string, owner?: string, group?: string) => apiRequest<void>('/api/auth/files/permissions', {
+    method: 'POST',
+    body: JSON.stringify({ path, permissions, owner, group })
+  })
 
   // Nginx管理API
-  const getNginxStatus = () => apiRequest('/api/auth/nginx/status')
-  const getNginxSites = () => apiRequest('/api/auth/nginx/sites')
-  const createNginxSite = (site: any) => apiRequest('/api/auth/nginx/sites', {
+  const getNginxStatus = () => apiRequest<NginxStatus>('/api/auth/nginx/status')
+  const getNginxSites = () => apiRequest<NginxSite[]>('/api/auth/nginx/sites')
+  const createNginxSite = (site: Partial<NginxSite>) => apiRequest<NginxSite>('/api/auth/nginx/sites', {
     method: 'POST',
     body: JSON.stringify(site)
   })
-  const updateNginxSite = (id: number, site: any) => apiRequest(`/api/auth/nginx/sites/${id}`, {
+  const updateNginxSite = (id: number, site: Partial<NginxSite>) => apiRequest<NginxSite>(`/api/auth/nginx/sites/${id}`, {
     method: 'PUT',
     body: JSON.stringify(site)
   })
-  const deleteNginxSite = (id: number) => apiRequest(`/api/auth/nginx/sites/${id}`, { method: 'DELETE' })
-  const toggleNginxSite = (id: number) => apiRequest(`/api/auth/nginx/sites/${id}/toggle`, { method: 'POST' })
-  const reloadNginx = () => apiRequest('/api/auth/nginx/reload', { method: 'POST' })
+  const deleteNginxSite = (id: number) => apiRequest<void>(`/api/auth/nginx/sites/${id}`, { method: 'DELETE' })
+  const toggleNginxSite = (id: number) => apiRequest<void>(`/api/auth/nginx/sites/${id}/toggle`, { method: 'POST' })
+  const reloadNginx = () => apiRequest<void>('/api/auth/nginx/reload', { method: 'POST' })
+  const restartNginx = () => apiRequest<void>('/api/auth/nginx/restart', { method: 'POST' })
+  const testNginxConfig = () => apiRequest<{ valid: boolean, message: string }>('/api/auth/nginx/test', { method: 'POST' })
+  const getNginxConfig = () => apiRequest<{ content: string }>('/api/auth/nginx/config')
+  const updateNginxConfig = (content: string) => apiRequest<void>('/api/auth/nginx/config', {
+    method: 'PUT',
+    body: JSON.stringify({ content })
+  })
+  const resetNginxConfig = () => apiRequest<void>('/api/auth/nginx/config/reset', { method: 'POST' })
 
   // 定时任务API
-  const getCrontabs = () => apiRequest('/api/auth/crontab')
-  const createCrontab = (crontab: any) => apiRequest('/api/auth/crontab', {
+  const getCrontabs = () => apiRequest<CrontabEntry[]>('/api/auth/crontab')
+  const createCrontab = (crontab: Partial<CrontabEntry>) => apiRequest<CrontabEntry>('/api/auth/crontab', {
     method: 'POST',
     body: JSON.stringify(crontab)
   })
-  const updateCrontab = (id: number, crontab: any) => apiRequest(`/api/auth/crontab/${id}`, {
+  const updateCrontab = (id: number, crontab: Partial<CrontabEntry>) => apiRequest<CrontabEntry>(`/api/auth/crontab/${id}`, {
     method: 'PUT',
     body: JSON.stringify(crontab)
   })
-  const deleteCrontab = (id: number) => apiRequest(`/api/auth/crontab/${id}`, { method: 'DELETE' })
-  const toggleCrontab = (id: number) => apiRequest(`/api/auth/crontab/${id}/toggle`, { method: 'POST' })
+  const deleteCrontab = (id: number) => apiRequest<void>(`/api/auth/crontab/${id}`, { method: 'DELETE' })
+  const toggleCrontab = (id: number) => apiRequest<void>(`/api/auth/crontab/${id}/toggle`, { method: 'POST' })
 
   // SSL证书管理API
-  const getSSLCertificates = () => apiRequest('/api/auth/acme/ssl')
-  const createSSLCertificate = (ssl: any) => apiRequest('/api/auth/acme/ssl', {
+  const getSSLCertificates = () => apiRequest<SSLCertificate[]>('/api/auth/acme/ssl')
+  const createSSLCertificate = (ssl: Partial<SSLCertificate>) => apiRequest<SSLCertificate>('/api/auth/acme/ssl', {
     method: 'POST',
     body: JSON.stringify(ssl)
   })
-  const deleteSSLCertificate = (id: number) => apiRequest(`/api/auth/acme/ssl/${id}`, { method: 'DELETE' })
+  const updateSSLCertificate = (id: number, ssl: Partial<SSLCertificate>) => apiRequest<SSLCertificate>(`/api/auth/acme/ssl/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(ssl)
+  })
+  const deleteSSLCertificate = (id: number) => apiRequest<void>(`/api/auth/acme/ssl/${id}`, { method: 'DELETE' })
+
+  // ACME客户端管理
+  const getAcmeClients = () => apiRequest<any[]>('/api/auth/acme/clients')
+  const createAcmeClient = (client: any) => apiRequest<any>('/api/auth/acme/clients', {
+    method: 'POST',
+    body: JSON.stringify(client)
+  })
+  const updateAcmeClient = (id: number, client: any) => apiRequest<any>(`/api/auth/acme/clients/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(client)
+  })
+  const deleteAcmeClient = (id: number) => apiRequest<void>(`/api/auth/acme/clients/${id}`, { method: 'DELETE' })
+
+  // DNS账号管理
+  const getDnsAccounts = () => apiRequest<any[]>('/api/auth/acme/dns')
+  const createDnsAccount = (account: any) => apiRequest<any>('/api/auth/acme/dns', {
+    method: 'POST',
+    body: JSON.stringify(account)
+  })
+  const updateDnsAccount = (id: number, account: any) => apiRequest<any>(`/api/auth/acme/dns/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(account)
+  })
+  const deleteDnsAccount = (id: number) => apiRequest<void>(`/api/auth/acme/dns/${id}`, { method: 'DELETE' })
 
   // 认证API
-  const login = (username: string, password: string) => apiRequest('/api/public/login', {
+  const login = (username: string, password: string) => apiRequest<LoginResponse>('/api/public/login', {
     method: 'POST',
     body: JSON.stringify({ username, password })
   })
-  
+
 
 
   return {
@@ -109,7 +223,7 @@ export const useApi = () => {
     getNetworkInfo,
     getProcesses,
     killProcess,
-    
+
     // 文件管理
     getFiles,
     uploadFile,
@@ -117,7 +231,13 @@ export const useApi = () => {
     createDirectory,
     getFileContent,
     saveFileContent,
-    
+    copyFile,
+    moveFile,
+    compressFiles,
+    extractFile,
+    getFilePermissions,
+    setFilePermissions,
+
     // Nginx管理
     getNginxStatus,
     getNginxSites,
@@ -126,19 +246,37 @@ export const useApi = () => {
     deleteNginxSite,
     toggleNginxSite,
     reloadNginx,
-    
+    restartNginx,
+    testNginxConfig,
+    getNginxConfig,
+    updateNginxConfig,
+    resetNginxConfig,
+
     // 定时任务
     getCrontabs,
     createCrontab,
     updateCrontab,
     deleteCrontab,
     toggleCrontab,
-    
+
     // SSL证书
     getSSLCertificates,
     createSSLCertificate,
+    updateSSLCertificate,
     deleteSSLCertificate,
-    
+
+    // ACME客户端
+    getAcmeClients,
+    createAcmeClient,
+    updateAcmeClient,
+    deleteAcmeClient,
+
+    // DNS账号
+    getDnsAccounts,
+    createDnsAccount,
+    updateDnsAccount,
+    deleteDnsAccount,
+
     // 认证
     login
   }

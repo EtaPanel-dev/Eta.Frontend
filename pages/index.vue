@@ -2,18 +2,31 @@
   <div class="dashboard-content">
     <!-- 系统概览卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Card v-for="metric in systemMetrics" :key="metric.title" class="metric-card">
+      <Card
+        v-for="metric in systemMetrics"
+        :key="metric.title"
+        class="metric-card"
+      >
         <template #content>
           <div class="flex items-center justify-between">
             <div>
-              <div class="text-sm text-secondary-content mb-1">{{ metric.title }}</div>
-              <div class="text-2xl font-bold text-primary-content">{{ metric.value }}</div>
-              <div class="text-xs text-tertiary-content">{{ metric.subtitle }}</div>
+              <div class="text-sm text-secondary-content mb-1">
+                {{ metric.title }}
+              </div>
+              <div class="text-2xl font-bold text-primary-content">
+                {{ metric.value }}
+              </div>
+              <div class="text-xs text-tertiary-content">
+                {{ metric.subtitle }}
+              </div>
             </div>
-            <div class="metric-icon" :style="{
-              backgroundColor: metric.color + '20',
-              color: metric.color,
-            }">
+            <div
+              class="metric-icon"
+              :style="{
+                backgroundColor: metric.color + '20',
+                color: metric.color,
+              }"
+            >
               <i :class="metric.icon" />
             </div>
           </div>
@@ -29,7 +42,9 @@
           <div class="cpu-chart">
             <div class="flex items-center justify-between mb-4">
               <span class="text-sm text-secondary-content">当前使用率</span>
-              <span class="text-lg font-bold text-primary-content">{{ cpuUsage }}%</span>
+              <span class="text-lg font-bold text-primary-content"
+                >{{ cpuUsage }}%</span
+              >
             </div>
             <CustomProgressBar :value="cpuUsage" class-name="mb-2" />
             <div class="grid grid-cols-4 gap-2 text-xs text-secondary-content">
@@ -48,7 +63,9 @@
           <div class="memory-chart">
             <div class="flex items-center justify-between mb-4">
               <span class="text-sm">已使用</span>
-              <span class="text-lg font-bold">{{ memoryUsed }} / {{ memoryTotal }}</span>
+              <span class="text-lg font-bold"
+                >{{ memoryUsed }} / {{ memoryTotal }}</span
+              >
             </div>
             <CustomProgressBar :value="memoryUsage" class-name="mb-2" />
             <div class="grid grid-cols-2 gap-4 text-xs text-gray-600">
@@ -72,7 +89,10 @@
           <Column field="usage" header="使用率">
             <template #body="slotProps">
               <div class="flex items-center gap-2">
-                <CustomProgressBar :value="slotProps.data.usagePercent" class-name="flex-1 h-2" />
+                <CustomProgressBar
+                  :value="slotProps.data.usagePercent"
+                  class-name="flex-1 h-2"
+                />
                 <span class="text-sm">{{ slotProps.data.usage }}</span>
               </div>
             </template>
@@ -88,16 +108,27 @@
         <template #title>
           <div class="flex items-center justify-between">
             <span>运行中的容器</span>
-            <Button icon="pi pi-plus" size="small" text @click="navigateToContainers" />
+            <Button
+              icon="pi pi-plus"
+              size="small"
+              text
+              @click="navigateToContainers"
+            />
           </div>
         </template>
         <template #content>
-          <div v-if="runningContainers.length === 0" class="text-center py-4 text-gray-500">
+          <div
+            v-if="runningContainers.length === 0"
+            class="text-center py-4 text-gray-500"
+          >
             暂无运行中的容器
           </div>
           <div v-else class="space-y-3">
-            <div v-for="container in runningContainers" :key="container.id"
-              class="flex items-center justify-between p-3 border rounded-lg">
+            <div
+              v-for="container in runningContainers"
+              :key="container.id"
+              class="flex items-center justify-between p-3 border rounded-lg"
+            >
               <div class="flex items-center gap-3">
                 <Tag severity="success" value="运行中" />
                 <div>
@@ -118,11 +149,16 @@
         <template #title>系统服务状态</template>
         <template #content>
           <div class="space-y-3">
-            <div v-for="service in systemServices" :key="service.name"
-              class="flex items-center justify-between p-3 border rounded-lg">
+            <div
+              v-for="service in systemServices"
+              :key="service.name"
+              class="flex items-center justify-between p-3 border rounded-lg"
+            >
               <div class="flex items-center gap-3">
-                <Tag :severity="service.status === 'active' ? 'success' : 'danger'"
-                  :value="service.status === 'active' ? '运行中' : '已停止'" />
+                <Tag
+                  :severity="service.status === 'active' ? 'success' : 'danger'"
+                  :value="service.status === 'active' ? '运行中' : '已停止'"
+                />
                 <div>
                   <div class="font-medium">{{ service.name }}</div>
                   <div class="text-sm text-gray-600">
@@ -131,8 +167,13 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <Button :icon="service.status === 'active' ? 'pi pi-stop' : 'pi pi-play'
-                  " size="small" text />
+                <Button
+                  :icon="
+                    service.status === 'active' ? 'pi pi-stop' : 'pi pi-play'
+                  "
+                  size="small"
+                  text
+                />
                 <Button icon="pi pi-refresh" size="small" text />
               </div>
             </div>
@@ -147,20 +188,23 @@
 import type { SystemMetric, DiskInfo, Container, SystemService } from "~/types";
 
 // 使用 Pinia stores
-const systemStore = useSystemStore()
-const api = useApi()
+const systemStore = useSystemStore();
+const api = useApi();
 
 // 创建计算属性确保一致的值
-const cpuUsage = computed(() => systemStore.systemInfo.cpu ?? 0)
-const memoryUsage = computed(() => systemStore.systemInfo.memory ?? 0)
-const memoryUsed = computed(() => systemStore.systemInfo.memoryUsed ?? "0 GB")
-const memoryTotal = computed(() => systemStore.systemInfo.memoryTotal ?? "0 GB")
+const cpuUsage = computed(() => systemStore.systemInfo.cpu ?? 0);
+const memoryUsage = computed(() => systemStore.systemInfo.memory ?? 0);
+const memoryUsed = computed(() => systemStore.systemInfo.memoryUsed ?? "0 GB");
+const memoryTotal = computed(
+  () => systemStore.systemInfo.memoryTotal ?? "0 GB"
+);
 
 // 启动自动刷新
 onMounted(() => {
-  systemStore.refreshSystemInfo()
-  systemStore.startAutoRefresh()
-})
+  systemStore.refreshAll();
+  systemStore.startAutoRefresh();
+  fetchNginxStatus();
+});
 
 // 系统指标 - 基于实时数据
 const systemMetrics = computed<SystemMetric[]>(() => [
@@ -192,32 +236,16 @@ const systemMetrics = computed<SystemMetric[]>(() => [
     icon: "pi pi-wifi",
     color: "#8B5CF6",
   },
-])
+]);
 
-// 磁盘信息 - 从API获取
-const { data: diskInfo } = await useLazyAsyncData('disk-info', async () => {
-  try {
-    const result = await api.getDiskInfo()
-    return result || []
-  } catch (error) {
-    console.error('获取磁盘信息失败:', error)
-    return []
-  }
-}, { default: () => [] })
+// 磁盘信息 - 从系统store获取
+const diskInfo = computed(() => systemStore.diskInfo || []);
 
 // API中没有容器接口，返回空数组
-const runningContainers = ref<Container[]>([])
+const runningContainers = ref<Container[]>([]);
 
-// 系统服务 - 从 Nginx 状态获取
-const { data: nginxStatus } = await useLazyAsyncData('nginx-status', async () => {
-  try {
-    const result = await api.getNginxStatus()
-    return result || { running: false }
-  } catch (error) {
-    console.error('获取Nginx状态失败:', error)
-    return { running: false }
-  }
-}, { default: () => ({ running: false }) })
+// 系统服务状态
+const nginxStatus = ref({ running: false });
 
 const systemServices = computed(() => [
   {
@@ -225,7 +253,17 @@ const systemServices = computed(() => [
     description: "Web 服务器",
     status: nginxStatus.value?.running ? "active" : "inactive",
   },
-])
+]);
+
+// 获取Nginx状态
+const fetchNginxStatus = async () => {
+  try {
+    const result = await api.getNginxStatus();
+    nginxStatus.value = result || { running: false };
+  } catch (error) {
+    console.error("获取Nginx状态失败:", error);
+  }
+};
 
 // 导航到容器页面
 const navigateToContainers = () => {
@@ -297,7 +335,7 @@ useHead({
   }
 }
 
-.space-y-3>*+* {
+.space-y-3 > * + * {
   margin-top: 0.75rem;
 }
 
@@ -391,11 +429,11 @@ useHead({
 }
 
 /* 优化卡片内容区域的间距 */
-:deep(.p-card-content)>.space-y-3>*:first-child {
+:deep(.p-card-content) > .space-y-3 > *:first-child {
   margin-top: 0;
 }
 
-:deep(.p-card-content)>.grid:first-child {
+:deep(.p-card-content) > .grid:first-child {
   margin-top: 0;
 }
 
@@ -448,8 +486,8 @@ useHead({
   margin-top: 0.75rem;
 }
 
-.cpu-chart .grid>div,
-.memory-chart .grid>div {
+.cpu-chart .grid > div,
+.memory-chart .grid > div {
   padding: 0.25rem 0;
 }
 
