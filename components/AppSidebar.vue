@@ -1,10 +1,17 @@
 <template>
   <!-- 移动端遮罩层 -->
-  <div v-if="isMobile && isOpen" class="sidebar-overlay" @click="$emit('close')" />
-  
-  <div class="layout-sidebar" :class="{ 'collapsed': !isOpen, 'mobile': isMobile }">
+  <div
+    v-if="isMobile && isOpen"
+    class="sidebar-overlay"
+    @click="$emit('close')"
+  />
+
+  <div class="layout-sidebar" :class="{ collapsed: !isOpen, mobile: isMobile }">
     <div class="sidebar-header">
-      <div class="flex items-center gap-2 p-3" :class="{ 'justify-center': !isOpen }">
+      <div
+        class="flex items-center gap-2 p-3"
+        :class="{ 'justify-center': !isOpen }"
+      >
         <AppLogo size="medium" />
         <span v-show="isOpen" class="font-bold text-lg">EtaPanel</span>
       </div>
@@ -44,7 +51,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "menu-change": [menu: string];
-  "close": [];
+  close: [];
 }>();
 
 // 处理菜单项点击
@@ -82,8 +89,8 @@ const menuSections: MenuSection[] = [
   {
     title: "数据库",
     items: [
-      { key: "mysql", label: "MySQL", icon: "pi pi-database" },
-      { key: "redis", label: "Redis", icon: "pi pi-server" },
+      { key: "sql", label: "SQL", icon: "pi pi-database" },
+      { key: "nosql", label: "NoSQL", icon: "pi pi-server" },
     ],
   },
   {
@@ -261,7 +268,7 @@ const menuSections: MenuSection[] = [
   .layout-sidebar {
     width: 280px;
   }
-  
+
   .layout-sidebar.collapsed {
     width: 280px;
   }

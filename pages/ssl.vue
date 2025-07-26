@@ -12,39 +12,54 @@
       </div>
     </div>
 
-    <DataTable :value="filteredSSLs" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
-      responsive-layout="scroll" :loading="pending"
-      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-      current-page-report-template="{first} - {last} / {totalRecords}">
-      <Column field="domain" header="域名">
-        <template #body="slotProps">
-          <span class="font-medium">{{ slotProps.data.domain }}</span>
-        </template>
-      </Column>
-      <Column field="provider" header="提供商" />
-      <Column field="email" header="邮箱" />
-      <Column field="auto_renew" header="自动续期">
-        <template #body="slotProps">
-          <Tag :severity="slotProps.data.auto_renew ? 'success' : 'secondary'" 
-               :value="slotProps.data.auto_renew ? '已启用' : '未启用'" />
-        </template>
-      </Column>
-      <Column field="enabled" header="状态">
-        <template #body="slotProps">
-          <Tag :severity="slotProps.data.enabled ? 'success' : 'danger'" 
-               :value="slotProps.data.enabled ? '启用' : '禁用'" />
-        </template>
-      </Column>
-      <Column header="操作" class="w-48">
-        <template #body="slotProps">
-          <div class="flex gap-1">
-            <Button icon="pi pi-pencil" size="small" text @click="editSSL(slotProps.data)" />
-            <Button icon="pi pi-trash" size="small" text severity="danger" 
-                    @click="deleteSSL(slotProps.data.id)" />
+    <div class="relative">
+      <!-- Loading overlay -->
+      <div v-if="pending" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+        <div class="flex flex-col items-center">
+          <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+          <span class="text-sm text-gray-600">加载中...</span>
+        </div>
+      </div>
+      
+      <DataTable :value="filteredSSLs" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
+        responsive-layout="scroll"
+        paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        current-page-report-template="{first} - {last} / {totalRecords}">
+        <template #empty>
+          <div class="text-center py-8 text-gray-500">
+            暂无SSL证书数据
           </div>
         </template>
-      </Column>
-    </DataTable>
+        <Column field="domain" header="域名">
+          <template #body="slotProps">
+            <span class="font-medium">{{ slotProps.data.domain }}</span>
+          </template>
+        </Column>
+        <Column field="provider" header="提供商" />
+        <Column field="email" header="邮箱" />
+        <Column field="auto_renew" header="自动续期">
+          <template #body="slotProps">
+            <Tag :severity="slotProps.data.auto_renew ? 'success' : 'secondary'" 
+                 :value="slotProps.data.auto_renew ? '已启用' : '未启用'" />
+          </template>
+        </Column>
+        <Column field="enabled" header="状态">
+          <template #body="slotProps">
+            <Tag :severity="slotProps.data.enabled ? 'success' : 'danger'" 
+                 :value="slotProps.data.enabled ? '启用' : '禁用'" />
+          </template>
+        </Column>
+        <Column header="操作" class="w-48">
+          <template #body="slotProps">
+            <div class="flex gap-1">
+              <Button icon="pi pi-pencil" size="small" text @click="editSSL(slotProps.data)" />
+              <Button icon="pi pi-trash" size="small" text severity="danger" 
+                      @click="deleteSSL(slotProps.data.id)" />
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+    </div>
 
     <!-- 创建/编辑SSL证书对话框 -->
     <Dialog v-model:visible="showCreateSSL" modal :header="editingId ? '编辑证书' : '申请证书'" 
@@ -81,20 +96,35 @@
       <div class="mb-4">
         <Button label="添加客户端" icon="pi pi-plus" @click="showCreateAcme = true" />
       </div>
-      <DataTable :value="acmeClients" :paginator="true" :rows="5">
-        <Column field="email" header="邮箱" />
-        <Column field="server" header="服务器" />
-        <Column field="key_type" header="密钥类型" />
-        <Column header="操作">
-          <template #body="slotProps">
-            <div class="flex gap-1">
-              <Button icon="pi pi-pencil" size="small" text @click="editAcmeClient(slotProps.data)" />
-              <Button icon="pi pi-trash" size="small" text severity="danger" 
-                      @click="deleteAcmeClient(slotProps.data.id)" />
+      <div class="relative">
+        <!-- Loading overlay -->
+        <div v-if="!acmeClients" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+          <div class="flex flex-col items-center">
+            <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+            <span class="text-sm text-gray-600">加载中...</span>
+          </div>
+        </div>
+        
+        <DataTable :value="acmeClients" :paginator="true" :rows="5">
+          <template #empty>
+            <div class="text-center py-4 text-gray-500">
+              暂无ACME客户端数据
             </div>
           </template>
-        </Column>
-      </DataTable>
+          <Column field="email" header="邮箱" />
+          <Column field="server" header="服务器" />
+          <Column field="key_type" header="密钥类型" />
+          <Column header="操作">
+            <template #body="slotProps">
+              <div class="flex gap-1">
+                <Button icon="pi pi-pencil" size="small" text @click="editAcmeClient(slotProps.data)" />
+                <Button icon="pi pi-trash" size="small" text severity="danger" 
+                        @click="deleteAcmeClient(slotProps.data.id)" />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </Dialog>
 
     <!-- DNS账号管理对话框 -->
@@ -102,19 +132,34 @@
       <div class="mb-4">
         <Button label="添加DNS账号" icon="pi pi-plus" @click="showCreateDns = true" />
       </div>
-      <DataTable :value="dnsAccounts" :paginator="true" :rows="5">
-        <Column field="name" header="名称" />
-        <Column field="provider" header="提供商" />
-        <Column header="操作">
-          <template #body="slotProps">
-            <div class="flex gap-1">
-              <Button icon="pi pi-pencil" size="small" text @click="editDnsAccount(slotProps.data)" />
-              <Button icon="pi pi-trash" size="small" text severity="danger" 
-                      @click="deleteDnsAccount(slotProps.data.id)" />
+      <div class="relative">
+        <!-- Loading overlay -->
+        <div v-if="!dnsAccounts" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+          <div class="flex flex-col items-center">
+            <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+            <span class="text-sm text-gray-600">加载中...</span>
+          </div>
+        </div>
+        
+        <DataTable :value="dnsAccounts" :paginator="true" :rows="5">
+          <template #empty>
+            <div class="text-center py-4 text-gray-500">
+              暂无DNS账号数据
             </div>
           </template>
-        </Column>
-      </DataTable>
+          <Column field="name" header="名称" />
+          <Column field="provider" header="提供商" />
+          <Column header="操作">
+            <template #body="slotProps">
+              <div class="flex gap-1">
+                <Button icon="pi pi-pencil" size="small" text @click="editDnsAccount(slotProps.data)" />
+                <Button icon="pi pi-trash" size="small" text severity="danger" 
+                        @click="deleteDnsAccount(slotProps.data.id)" />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </Dialog>
 
     <!-- 创建/编辑ACME客户端对话框 -->

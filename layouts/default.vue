@@ -71,8 +71,8 @@ const activeMenu = computed(() => {
   if (path.startsWith('/volumes')) return 'volumes'
   if (path.startsWith('/websites')) return 'websites'
   if (path.startsWith('/ssl')) return 'ssl'
-  if (path.startsWith('/mysql')) return 'mysql'
-  if (path.startsWith('/redis')) return 'redis'
+  if (path.startsWith('/sql')) return 'sql'
+  if (path.startsWith('/nosql')) return 'nosql'
   if (path.startsWith('/files')) return 'files'
   if (path.startsWith('/terminal')) return 'terminal'
   if (path.startsWith('/cron')) return 'cron'
@@ -91,8 +91,8 @@ const pageTitleMap: Record<string, string> = {
   '/volumes': '存储卷管理',
   '/websites': '网站管理',
   '/ssl': 'SSL证书管理',
-  '/mysql': 'MySQL数据库',
-  '/redis': 'Redis缓存',
+  '/sql': 'SQL数据库管理',
+  '/nosql': 'NoSQL数据库管理',
   '/files': '文件管理',
   '/terminal': '终端',
   '/cron': '计划任务',
@@ -116,8 +116,8 @@ const handleMenuChange = (menuKey: string) => {
     volumes: '/volumes',
     websites: '/websites',
     ssl: '/ssl',
-    mysql: '/mysql',
-    redis: '/redis',
+    sql: '/sql',
+    nosql: '/nosql',
     files: '/files',
     terminal: '/terminal',
     cron: '/cron',
@@ -221,7 +221,9 @@ onMounted(() => {
 :deep(.logs-content),
 :deep(.settings-content),
 :deep(.websites-content),
-:deep(.terminal-content) {
+:deep(.terminal-content),
+:deep(.sql-content),
+:deep(.nosql-content) {
   background: var(--bg-secondary);
   color: var(--text-primary);
   padding: 1.5rem;
@@ -245,7 +247,9 @@ onMounted(() => {
   :deep(.logs-content),
   :deep(.settings-content),
   :deep(.websites-content),
-  :deep(.terminal-content) {
+  :deep(.terminal-content),
+  :deep(.sql-content),
+  :deep(.nosql-content) {
     padding: 1rem;
     min-height: calc(100vh - 60px);
   }

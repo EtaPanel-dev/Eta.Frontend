@@ -108,7 +108,7 @@ export const useApi = () => {
         }
       })
 
-      if (response.code !== 200) {
+      if (response.status !== 200) {
         throw new Error(response.message || '上传失败')
       }
 

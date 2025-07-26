@@ -52,18 +52,26 @@
     <!-- 文件列表 -->
     <Card>
       <template #content>
-        <DataTable
-          ref="dt"
-          :value="files"
-          :loading="pending"
-          responsive-layout="scroll"
-          selection-mode="multiple"
-          v-model:selection="selectedFiles"
-          :metaKeySelection="false"
-        >
-        <template #loading>
-          <div class="loading-overlay">
-            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <div class="relative">
+          <!-- Loading overlay -->
+          <div v-if="pending" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+            <div class="flex flex-col items-center">
+              <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+              <span class="text-sm text-gray-600">加载中...</span>
+            </div>
+          </div>
+          
+          <DataTable
+            ref="dt"
+            :value="files"
+            responsive-layout="scroll"
+            selection-mode="multiple"
+            v-model:selection="selectedFiles"
+            :metaKeySelection="false"
+          >
+        <template #empty>
+          <div class="text-center py-8 text-gray-500">
+            <p>此目录下暂无文件</p>
           </div>
         </template>
       <Column selection-mode="multiple" header-style="width: 3rem" />
@@ -101,7 +109,8 @@
           </div>
         </template>
       </Column>
-        </DataTable>
+          </DataTable>
+        </div>
       </template>
     </Card>
 
@@ -135,10 +144,10 @@
       :header="`编辑文件: ${editingFile?.name || ''}`"
       :style="{ width: '90vw', height: '80vh' }"
       :maximizable="true"
-      @hide="closeEditor"
     >
       <div class="editor-container">
         <VueMonacoEditor
+          v-if="showEditor && fileContent !== null"
           v-model:value="fileContent"
           :language="getLanguageFromFileName(editingFile?.name || '')"
           theme="vs-dark"
@@ -150,11 +159,33 @@
             wordWrap: 'on'
           }"
           style="height: 60vh;"
+          @mount="onEditorMount"
+          @unmount="onEditorUnmount"
         />
+        <div v-else class="flex items-center justify-center" style="height: 60vh;">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
       </div>
       <template #footer>
         <Button label="取消" text @click="closeEditor" />
         <Button label="保存" @click="saveFile" />
+      </template>
+    </Dialog>
+
+    <!-- 确认删除对话框 -->
+    <Dialog
+      v-model:visible="showConfirmDialog"
+      modal
+      header="确认删除"
+      :style="{ width: '400px' }"
+    >
+      <div class="flex items-center gap-3 mb-4">
+        <i class="pi pi-exclamation-triangle text-orange-500 text-2xl" />
+        <span>{{ confirmMessage }}</span>
+      </div>
+      <template #footer>
+        <Button label="取消" text @click="handleCancel" />
+        <Button label="确定" severity="danger" @click="handleConfirm" />
       </template>
     </Dialog>
 
@@ -172,7 +203,34 @@
 <script setup lang="ts">
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor';
 import Checkbox from 'primevue/checkbox';
+import { useToast } from 'primevue/usetoast';
 import type { FileItem } from "~/types";
+
+// 初始化toast
+const toast = useToast();
+
+// 确认对话框状态
+const showConfirmDialog = ref(false);
+const confirmMessage = ref('');
+const confirmCallback = ref<(() => void) | null>(null);
+
+const showConfirm = (message: string, callback: () => void) => {
+  confirmMessage.value = message;
+  confirmCallback.value = callback;
+  showConfirmDialog.value = true;
+};
+
+const handleConfirm = () => {
+  if (confirmCallback.value) {
+    confirmCallback.value();
+  }
+  showConfirmDialog.value = false;
+};
+
+const handleCancel = () => {
+  showConfirmDialog.value = false;
+  confirmCallback.value = null;
+};
 
 // 页面 meta
 useHead({
@@ -215,6 +273,8 @@ const {
       return result;
     } catch (error) {
       console.error("获取文件列表失败:", error);
+      const errorMsg = error?.message || error?.data?.message || '获取文件列表失败';
+      toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
       return {
         currentPath: currentPath.value,
         files: [],
@@ -259,13 +319,7 @@ watch(currentPath, () => {
 
 
 
-// 同步API返回的currentPath
-watch(filesData, (newData) => {
-  if (newData?.currentPath && newData.currentPath !== currentPath.value) {
-    currentPath.value = newData.currentPath;
-    router.replace({ query: { path: newData.currentPath } });
-  }
-});
+
 
 // 格式化文件大小
 const formatFileSize = (bytes: number) => {
@@ -310,9 +364,7 @@ const handleFileClick = async (file: any) => {
   if (file.isDir || file.type === "directory") {
     selectedFiles.value = []; // 清除选中状态
     const newPath = currentPath.value === "/" ? `/${file.name}` : `${currentPath.value}/${file.name}`;
-    currentPath.value = newPath;
-    await router.push({ query: { path: newPath } });
-    refresh();
+    await router.push({ path: route.path, query: { path: newPath } });
   } else {
     await openFileEditor(file);
   }
@@ -322,10 +374,13 @@ const openFileEditor = async (file: any) => {
   try {
     const content = await api.getFileContent(file.path);
     editingFile.value = file;
-    fileContent.value = content.content || content;
+    // 确保 fileContent 是字符串
+    fileContent.value = typeof content === 'string' ? content : (content?.content || '');
     showEditor.value = true;
   } catch (error) {
     console.error("读取文件内容失败:", error);
+    const errorMsg = error?.message || error?.data?.message || '读取文件内容失败';
+    toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
   }
 };
 
@@ -335,8 +390,11 @@ const saveFile = async () => {
   try {
     await api.saveFileContent(editingFile.value.path, fileContent.value);
     showEditor.value = false;
+    toast.add({ severity: 'success', summary: '成功', detail: '文件保存成功', life: 3000 });
   } catch (error) {
     console.error("保存文件失败:", error);
+    const errorMsg = error?.message || error?.data?.message || '保存文件失败';
+    toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
   }
 };
 
@@ -344,10 +402,14 @@ const closeEditor = () => {
   showEditor.value = false;
   editingFile.value = null;
   fileContent.value = "";
-  // 确保焦点返回到页面
-  nextTick(() => {
-    document.body.focus();
-  });
+};
+
+const onEditorMount = () => {
+  console.log('Editor mounted successfully');
+};
+
+const onEditorUnmount = () => {
+  console.log('Editor unmounted successfully');
 };
 
 const getLanguageFromFileName = (fileName: string) => {
@@ -378,10 +440,7 @@ const getLanguageFromFileName = (fileName: string) => {
 
 
 const navigateToPath = async (path: string) => {
-  currentPath.value = path;
-  await router.push({ query: { path } });
-  await nextTick();
-  refresh();
+  await router.push({ query: { ...route.query, path } });
 };
 
 const navigateToSegment = (index: number) => {
@@ -424,7 +483,7 @@ const batchDelete = async () => {
   if (selectedFiles.value.length === 0) return;
   
   const fileNames = selectedFiles.value.map(f => f.name).join(', ');
-  if (confirm(`确定要删除这 ${selectedFiles.value.length} 个项目吗？\n${fileNames}`)) {
+  showConfirm(`确定要删除这 ${selectedFiles.value.length} 个项目吗？\n${fileNames}`, async () => {
     try {
       for (const file of selectedFiles.value) {
         await api.deleteFile(file.path);
@@ -433,8 +492,10 @@ const batchDelete = async () => {
       await refresh();
     } catch (error) {
       console.error("批量删除失败:", error);
+      const errorMsg = error?.message || error?.data?.message || '批量删除失败';
+      toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
     }
-  }
+  });
 };
 
 const createFolder = async () => {
@@ -452,6 +513,8 @@ const createFolder = async () => {
     await refresh();
   } catch (error) {
     console.error("创建文件夹失败:", error);
+    const errorMsg = error?.message || error?.data?.message || '创建文件夹失败';
+    toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
   }
 };
 
@@ -460,12 +523,23 @@ const handleFileUpload = async (event: Event) => {
   const files = target.files;
   if (!files) return;
 
+  let successCount = 0;
+  let failCount = 0;
+
   for (const file of Array.from(files)) {
     try {
       await api.uploadFile(currentPath.value, file);
+      successCount++;
     } catch (error) {
       console.error(`上传文件 ${file.name} 失败:`, error);
+      const errorMsg = error?.message || error?.data?.message || `上传文件 ${file.name} 失败`;
+      toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
+      failCount++;
     }
+  }
+
+  if (successCount > 0) {
+    toast.add({ severity: 'success', summary: '成功', detail: `成功上传 ${successCount} 个文件`, life: 3000 });
   }
 
   await refresh();
@@ -492,14 +566,16 @@ const downloadFile = (file: any) => {
 };
 
 const deleteFile = async (file: FileItem) => {
-  if (confirm(`确定要删除 ${file.name} 吗？`)) {
+  showConfirm(`确定要删除 ${file.name} 吗？`, async () => {
     try {
       await api.deleteFile(file.path);
       await refresh();
     } catch (error) {
       console.error("删除文件失败:", error);
+      const errorMsg = error?.message || error?.data?.message || '删除文件失败';
+      toast.add({ severity: 'error', summary: '错误', detail: errorMsg, life: 3000 });
     }
-  }
+  });
 };
 </script>
 
@@ -573,23 +649,5 @@ const deleteFile = async (file: FileItem) => {
   }
 }
 
-/* 加载遮罩样式 */
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
 
-@media (prefers-color-scheme: dark) {
-  .loading-overlay {
-    background: rgba(0, 0, 0, 0.8);
-  }
-}
 </style>

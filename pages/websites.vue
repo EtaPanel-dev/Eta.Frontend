@@ -11,10 +11,24 @@
       </div>
     </div>
 
-    <DataTable :value="filteredSites" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
-      responsive-layout="scroll" :loading="pending"
-      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-      current-page-report-template="{first} - {last} / {totalRecords}">
+    <div class="relative">
+      <!-- Loading overlay -->
+      <div v-if="pending" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+        <div class="flex flex-col items-center">
+          <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+          <span class="text-sm text-gray-600">加载中...</span>
+        </div>
+      </div>
+      
+      <DataTable :value="filteredSites" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
+        responsive-layout="scroll"
+        paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        current-page-report-template="{first} - {last} / {totalRecords}">
+        <template #empty>
+          <div class="text-center py-8 text-gray-500">
+            暂无网站数据
+          </div>
+        </template>
       <Column field="domain" header="域名">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
@@ -48,7 +62,8 @@
           </div>
         </template>
       </Column>
-    </DataTable>
+      </DataTable>
+    </div>
 
     <!-- 创建/编辑网站对话框 -->
     <Dialog v-model:visible="showCreateSite" modal :header="editingId ? '编辑网站' : '创建网站'" 

@@ -29,5 +29,8 @@
 /* 9. Toast组件 */
 @import "./components/toast.css";
 
-/* 10. 其他组件 */
+/* 10. 加载组件 */
+@import "./components/loading.css";
+
+/* 11. 其他组件 */
 @import "./components/misc.css";
