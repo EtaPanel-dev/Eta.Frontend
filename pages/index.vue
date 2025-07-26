@@ -838,7 +838,7 @@ onBeforeUnmount(() => {
 }
 
 :deep(.p-progressbar .p-progressbar-value) {
-  background: linear-gradient(to right, #00dc82, #36e4da) !important;
+  background: linear-gradient(to right, #00dc82, #3b82f6) !important;
   height: 100% !important;
   border-radius: 0.25rem !important;
   transition: width 0.3s ease !important;
@@ -906,7 +906,7 @@ onBeforeUnmount(() => {
 
 :deep(.custom-progress-bar-fill) {
   height: 100%;
-  background: linear-gradient(to right, #00dc82, #36e4da);
+  background: linear-gradient(to right, #00dc82, #3b82f6);
   border-radius: 0.25rem;
   transition: width 0.3s ease;
 }

@@ -479,7 +479,24 @@ const toggleRealTime = () => {
   font-size: 0.375rem;
 }
 
-/* 日志统计项深色模式颜色修正 */
+/* 日志统计项颜色修正 - 确保生产环境一致性 */
+.text-red-600 {
+  color: #dc2626 !important;
+}
+
+.text-yellow-600 {
+  color: #d97706 !important;
+}
+
+.text-blue-600 {
+  color: #2563eb !important;
+}
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+/* 深色模式颜色修正 */
 @media (prefers-color-scheme: dark) {
   .text-red-600 {
     color: #f87171 !important;
