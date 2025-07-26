@@ -344,17 +344,81 @@ const getFileIcon = (file: any) => {
   switch (ext) {
     case "txt":
     case "md":
-      return "pi pi-file-text text-gray-500";
+    case "readme":
+      return "pi pi-file-edit text-gray-600";
     case "json":
+      return "pi pi-code text-orange-500";
     case "js":
+    case "mjs":
+      return "pi pi-code text-yellow-500";
     case "ts":
-      return "pi pi-code text-green-500";
+      return "pi pi-code text-blue-600";
+    case "vue":
+      return "pi pi-code text-green-600";
+    case "html":
+    case "htm":
+      return "pi pi-code text-orange-600";
+    case "css":
+    case "scss":
+    case "sass":
+      return "pi pi-palette text-pink-500";
     case "jpg":
+    case "jpeg":
     case "png":
     case "gif":
+    case "svg":
+    case "webp":
       return "pi pi-image text-purple-500";
     case "pdf":
       return "pi pi-file-pdf text-red-500";
+    case "zip":
+    case "rar":
+    case "7z":
+    case "tar":
+    case "gz":
+      return "pi pi-file-zip text-yellow-600";
+    case "mp4":
+    case "avi":
+    case "mov":
+    case "mkv":
+      return "pi pi-video text-indigo-500";
+    case "mp3":
+    case "wav":
+    case "flac":
+      return "pi pi-volume-up text-green-500";
+    case "doc":
+    case "docx":
+      return "pi pi-file-word text-blue-700";
+    case "xls":
+    case "xlsx":
+      return "pi pi-file-excel text-green-700";
+    case "ppt":
+    case "pptx":
+      return "pi pi-file text-orange-700";
+    case "py":
+      return "pi pi-code text-blue-500";
+    case "php":
+      return "pi pi-code text-purple-600";
+    case "java":
+      return "pi pi-code text-red-600";
+    case "cpp":
+    case "c":
+    case "h":
+      return "pi pi-code text-blue-800";
+    case "sh":
+    case "bash":
+      return "pi pi-terminal text-gray-700";
+    case "sql":
+      return "pi pi-database text-blue-600";
+    case "xml":
+      return "pi pi-code text-orange-500";
+    case "yaml":
+    case "yml":
+      return "pi pi-code text-red-400";
+    case "log":
+      return "pi pi-list text-gray-500";
+    case "env":
+      return "pi pi-cog text-gray-600";
     default:
       return "pi pi-file text-gray-400";
   }
