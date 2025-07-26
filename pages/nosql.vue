@@ -150,10 +150,10 @@
                 <template #content>
                     <div class="relative">
                       <!-- Loading overlay -->
-                      <div v-if="keysLoading" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+                      <div v-if="keysLoading" class="loading-overlay">
                         <div class="flex flex-col items-center">
                           <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
-                          <span class="text-sm text-gray-600">刷新中...</span>
+                          <span class="loading-text">刷新中...</span>
                         </div>
                       </div>
                       

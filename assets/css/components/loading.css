@@ -65,3 +65,31 @@
 .mb-2 {
   margin-bottom: 0.5rem;
 }
+
+/* 加载遮罩 */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 0.25rem;
+}
+
+.loading-text {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .loading-overlay {
+    background-color: rgba(31, 41, 55, 0.75);
+  }
+  
+  .loading-text {
+    color: #d1d5db;
+  }
+}

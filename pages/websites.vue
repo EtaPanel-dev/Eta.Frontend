@@ -13,10 +13,10 @@
 
     <div class="relative">
       <!-- Loading overlay -->
-      <div v-if="pending" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded">
+      <div v-if="pending" class="loading-overlay">
         <div class="flex flex-col items-center">
           <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
-          <span class="text-sm text-gray-600">加载中...</span>
+          <span class="loading-text">加载中...</span>
         </div>
       </div>
       

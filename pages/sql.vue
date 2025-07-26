@@ -83,36 +83,46 @@
                     </div>
                   </template>
                   <template #content>
-                    <DataTable :value="databases" responsive-layout="scroll">
-                      <Column field="name" header="数据库名">
-                        <template #body="slotProps">
-                          <div class="flex items-center gap-2">
-                            <i class="pi pi-database text-blue-500" />
-                            <span class="font-medium">{{ slotProps.data.name }}</span>
-                          </div>
-                        </template>
-                      </Column>
-                      <Column field="size" header="大小" />
-                      <Column header="操作" class="w-24">
-                        <template #body="slotProps">
-                          <div class="flex gap-1">
-                            <Button 
-                              icon="pi pi-download" 
-                              size="small" 
-                              text 
-                              @click="backupDatabase(slotProps.data.name)"
-                            />
-                            <Button 
-                              icon="pi pi-trash" 
-                              size="small" 
-                              text 
-                              severity="danger" 
-                              @click="deleteDatabase(slotProps.data.name)"
-                            />
-                          </div>
-                        </template>
-                      </Column>
-                    </DataTable>
+                    <div class="relative">
+                      <!-- Loading overlay -->
+                      <div v-if="databasesLoading" class="loading-overlay">
+                        <div class="flex flex-col items-center">
+                          <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+                          <span class="loading-text">加载中...</span>
+                        </div>
+                      </div>
+                      
+                      <DataTable :value="databases" responsive-layout="scroll">
+                        <Column field="name" header="数据库名">
+                          <template #body="slotProps">
+                            <div class="flex items-center gap-2">
+                              <i class="pi pi-database text-blue-500" />
+                              <span class="font-medium">{{ slotProps.data.name }}</span>
+                            </div>
+                          </template>
+                        </Column>
+                        <Column field="size" header="大小" />
+                        <Column header="操作" class="w-24">
+                          <template #body="slotProps">
+                            <div class="flex gap-1">
+                              <Button 
+                                icon="pi pi-download" 
+                                size="small" 
+                                text 
+                                @click="backupDatabase(slotProps.data.name)"
+                              />
+                              <Button 
+                                icon="pi pi-trash" 
+                                size="small" 
+                                text 
+                                severity="danger" 
+                                @click="deleteDatabase(slotProps.data.name)"
+                              />
+                            </div>
+                          </template>
+                        </Column>
+                      </DataTable>
+                    </div>
                   </template>
                 </Card>
 
@@ -125,36 +135,46 @@
                     </div>
                   </template>
                   <template #content>
-                    <DataTable :value="users" responsive-layout="scroll">
-                      <Column field="username" header="用户名">
-                        <template #body="slotProps">
-                          <div class="flex items-center gap-2">
-                            <i class="pi pi-user text-green-500" />
-                            <span class="font-medium">{{ slotProps.data.username }}</span>
-                          </div>
-                        </template>
-                      </Column>
-                      <Column field="host" header="主机" />
-                      <Column header="操作" class="w-24">
-                        <template #body="slotProps">
-                          <div class="flex gap-1">
-                            <Button 
-                              icon="pi pi-key" 
-                              size="small" 
-                              text 
-                              @click="resetPassword(slotProps.data.username)"
-                            />
-                            <Button 
-                              icon="pi pi-trash" 
-                              size="small" 
-                              text 
-                              severity="danger" 
-                              @click="deleteUser(slotProps.data.username)"
-                            />
-                          </div>
-                        </template>
-                      </Column>
-                    </DataTable>
+                    <div class="relative">
+                      <!-- Loading overlay -->
+                      <div v-if="usersLoading" class="loading-overlay">
+                        <div class="flex flex-col items-center">
+                          <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-2"></i>
+                          <span class="loading-text">加载中...</span>
+                        </div>
+                      </div>
+                      
+                      <DataTable :value="users" responsive-layout="scroll">
+                        <Column field="username" header="用户名">
+                          <template #body="slotProps">
+                            <div class="flex items-center gap-2">
+                              <i class="pi pi-user text-green-500" />
+                              <span class="font-medium">{{ slotProps.data.username }}</span>
+                            </div>
+                          </template>
+                        </Column>
+                        <Column field="host" header="主机" />
+                        <Column header="操作" class="w-24">
+                          <template #body="slotProps">
+                            <div class="flex gap-1">
+                              <Button 
+                                icon="pi pi-key" 
+                                size="small" 
+                                text 
+                                @click="resetPassword(slotProps.data.username)"
+                              />
+                              <Button 
+                                icon="pi pi-trash" 
+                                size="small" 
+                                text 
+                                severity="danger" 
+                                @click="deleteUser(slotProps.data.username)"
+                              />
+                            </div>
+                          </template>
+                        </Column>
+                      </DataTable>
+                    </div>
                   </template>
                 </Card>
               </div>
@@ -268,6 +288,10 @@ const charsets = [
   { label: 'utf8', value: 'utf8' },
   { label: 'latin1', value: 'latin1' }
 ]
+
+// 加载状态
+const databasesLoading = ref(false)
+const usersLoading = ref(false)
 
 // 获取数据库列表
 const { data: databases } = await useLazyAsyncData('mysql-databases', () => {

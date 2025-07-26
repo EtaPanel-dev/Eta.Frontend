@@ -749,36 +749,11 @@ const deleteFile = async (file: FileItem) => {
   }
 }
 
-/* 加载遮罩样式 */
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(255, 255, 255, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  border-radius: 0.25rem;
-}
-
-.loading-text {
-  font-size: 0.875rem;
-  color: #4b5563;
-}
-
 /* 深色模式骨架屏 */
 @media (prefers-color-scheme: dark) {
   .skeleton-line {
     background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
     background-size: 200% 100%;
-  }
-  
-  .loading-overlay {
-    background-color: rgba(31, 41, 55, 0.75);
-  }
-  
-  .loading-text {
-    color: #d1d5db;
   }
 }
 

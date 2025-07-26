@@ -24,7 +24,7 @@ export default defineNuxtConfig({
         },
         autoImport: true,
         components: {
-            include: ['Toast', 'Button', 'InputText', 'Card', 'DataTable', 'Column', 'Dialog', 'Dropdown', 'Checkbox', 'Textarea', 'Calendar', 'InputNumber', 'ProgressSpinner', 'Tag']
+            include: ['Toast', 'ToastService', 'Button', 'InputText', 'Card', 'DataTable', 'Column', 'Dialog', 'Dropdown', 'Checkbox', 'Textarea', 'Calendar', 'InputNumber', 'ProgressSpinner', 'Tag']
         }
     },
     css: [
@@ -33,6 +33,9 @@ export default defineNuxtConfig({
     ],
     build: {
         transpile: ['primevue']
+    },
+    ssr: {
+        noExternal: ['primevue']
     },
     app: {
         head: {
