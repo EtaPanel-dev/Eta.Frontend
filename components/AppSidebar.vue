@@ -2,7 +2,7 @@
   <div class="layout-sidebar">
     <div class="sidebar-header">
       <div class="flex items-center gap-2 p-3">
-        <i class="pi pi-server text-2xl text-primary" />
+        <AppLogo size="medium" />
         <span class="font-bold text-lg">EtaPanel</span>
       </div>
     </div>
@@ -124,6 +124,8 @@ const menuSections: MenuSection[] = [
 .sidebar-header .text-primary {
   color: var(--accent-primary);
 }
+
+/* Logo样式现在由AppLogo组件处理 */
 
 .sidebar-content {
   padding: 1rem 0;

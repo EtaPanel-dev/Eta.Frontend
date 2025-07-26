@@ -20,7 +20,7 @@ export const useApi = () => {
   const API_BASE_URL = config.public.apiBaseUrl
 
   // 通用API请求方法，支持完整的错误处理
-  const apiRequest = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+  const apiRequest = async <T>(endpoint: string, options: RequestInit = {}, isLoginRequest = false): Promise<T> => {
     const token = useCookie('auth-token')
 
     try {
@@ -43,6 +43,12 @@ export const useApi = () => {
     } catch (error: any) {
       // 处理401未授权错误
       if (error.status === 401) {
+        // 如果是登录请求的401错误，返回具体的错误信息
+        if (isLoginRequest) {
+          throw new Error(error.data?.message || '用户名或密码错误')
+        }
+
+        // 其他请求的401错误，表示token过期
         token.value = null
         await navigateTo('/login')
         throw new Error('登录已过期，请重新登录')
@@ -98,6 +104,15 @@ export const useApi = () => {
         await navigateTo('/login')
         throw new Error('登录已过期，请重新登录')
       }
+
+      if (error.status === 403) {
+        throw new Error('权限不足，无法上传文件')
+      }
+
+      if (error.status === 413) {
+        throw new Error('文件过大，请选择较小的文件')
+      }
+
       throw new Error(error.data?.message || error.message || '上传失败')
     }
   }
@@ -206,11 +221,65 @@ export const useApi = () => {
   })
   const deleteDnsAccount = (id: number) => apiRequest<void>(`/api/auth/acme/dns/${id}`, { method: 'DELETE' })
 
-  // 认证API
-  const login = (username: string, password: string) => apiRequest<LoginResponse>('/api/public/login', {
-    method: 'POST',
-    body: JSON.stringify({ username, password })
-  })
+  // 认证API - 专门的登录方法，不使用通用的apiRequest
+  const login = async (username: string, password: string): Promise<LoginResponse> => {
+    try {
+      const response = await $fetch<ApiResponse<LoginResponse>>(`${API_BASE_URL}/api/public/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password })
+      })
+
+      // 检查API响应状态
+      if (response.code !== 200) {
+        throw new Error(response.message || '登录失败')
+      }
+
+      return response.data
+    } catch (error: any) {
+      console.log('Login error details:', error) // 调试用
+
+      // 标记错误已被处理，避免全局错误处理器重复处理
+      error.handled = true
+
+      // 登录接口的错误处理，不进行token清理和跳转
+      if (error.status === 401) {
+        // 尝试从多个可能的位置获取错误信息
+        const errorMessage = error.data?.message ||
+          error.response?.data?.message ||
+          error.statusText ||
+          '用户名或密码错误'
+        throw new Error(errorMessage)
+      }
+
+      if (error.status === 400) {
+        const errorMessage = error.data?.message ||
+          error.response?.data?.message ||
+          '请求参数错误'
+        throw new Error(errorMessage)
+      }
+
+      if (error.status >= 500) {
+        const errorMessage = error.data?.message ||
+          error.response?.data?.message ||
+          '服务器内部错误，请稍后重试'
+        throw new Error(errorMessage)
+      }
+
+      // 处理其他HTTP错误
+      if (error.status) {
+        const errorMessage = error.data?.message ||
+          error.response?.data?.message ||
+          `登录失败 (${error.status})`
+        throw new Error(errorMessage)
+      }
+
+      // 处理网络错误
+      throw new Error(error.message || '网络连接失败，请检查网络设置')
+    }
+  }
 
 
 

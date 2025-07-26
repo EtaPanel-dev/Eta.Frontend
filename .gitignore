@@ -9,6 +9,12 @@ dist
 # Node dependencies
 node_modules
 
+# Bun
+bun.lockb
+
+# Test coverage
+coverage/
+
 # Logs
 logs
 *.log
@@ -22,4 +28,3 @@ logs
 .env
 .env.*
 !.env.example
-.DS_Store

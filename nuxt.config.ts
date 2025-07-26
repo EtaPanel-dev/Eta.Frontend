@@ -23,15 +23,19 @@ export default defineNuxtConfig({
         autoImport: true,
         components: {
             include: ['Toast', 'Button', 'InputText', 'Card', 'DataTable', 'Column', 'Dialog', 'Dropdown', 'Checkbox', 'Textarea', 'Calendar', 'InputNumber', 'ProgressSpinner', 'Tag']
-        },
-        services: {
-            include: ['ToastService']
         }
     },
     css: [
         'primeicons/primeicons.css',
         '~/assets/css/main.css'
     ],
+    app: {
+        head: {
+            link: [
+                { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }
+            ]
+        }
+    },
     runtimeConfig: {
         public: {
             apiBaseUrl: 'http://lxhtt-mac-mini:8080'

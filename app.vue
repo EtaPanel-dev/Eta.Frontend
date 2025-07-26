@@ -5,6 +5,7 @@
     <Toast
       position="top-right"
       :breakpoints="{ '960px': { width: '100%', right: '0', left: '0' } }"
+      :base-z-index="99999"
     />
   </NuxtLayout>
 </template>

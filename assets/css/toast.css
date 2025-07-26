@@ -9,6 +9,7 @@
   width: 25rem !important;
   max-width: calc(100vw - 40px) !important;
   pointer-events: none !important;
+  overflow: visible !important;
 }
 
 /* Toast 消息可以接收点击事件 */
@@ -16,7 +17,7 @@
   pointer-events: auto !important;
 }
 
-/* Toast 消息项 */
+/* Toast 消息项 - 基础样式 */
 .p-toast-message {
   margin: 0 0 1rem 0;
   border-radius: 0.5rem;
@@ -25,10 +26,98 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
-  animation: toast-slide-in 0.3s ease-out;
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  will-change: transform, opacity;
 }
 
-/* Toast 动画 */
+/* Toast 进入动画 */
+.p-toast-message-enter-from,
+.p-toast-message-appear-from {
+  transform: translateX(100%) !important;
+  opacity: 0 !important;
+}
+
+.p-toast-message-enter-active,
+.p-toast-message-appear-active {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+}
+
+.p-toast-message-enter-to,
+.p-toast-message-appear-to {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+/* Toast 离开动画 */
+.p-toast-message-leave-from {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+.p-toast-message-leave-active {
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in !important;
+}
+
+.p-toast-message-leave-to {
+  transform: translateX(100%) !important;
+  opacity: 0 !important;
+}
+
+/* 兼容旧版本的 Vue transition 类名 */
+.p-toast-message-enter,
+.p-toast-message-appear {
+  transform: translateX(100%) !important;
+  opacity: 0 !important;
+}
+
+.p-toast-message-leave {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+/* 确保动画应用到正确的元素 */
+.p-toast .p-toast-message-enter-from,
+.p-toast .p-toast-message-appear-from,
+.p-toast .p-toast-message-enter,
+.p-toast .p-toast-message-appear {
+  transform: translateX(100%) !important;
+  opacity: 0 !important;
+}
+
+.p-toast .p-toast-message-enter-active,
+.p-toast .p-toast-message-appear-active {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+}
+
+.p-toast .p-toast-message-leave-from,
+.p-toast .p-toast-message-leave {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+.p-toast .p-toast-message-leave-active {
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in !important;
+}
+
+.p-toast .p-toast-message-leave-to {
+  transform: translateX(100%) !important;
+  opacity: 0 !important;
+}
+
+/* 强制应用动画到所有可能的Toast消息元素 */
+.p-toast > div[class*="message"] {
+  transition: transform 0.3s ease, opacity 0.3s ease !important;
+}
+
+/* 覆盖任何可能的冲突样式 */
+.p-toast-message[style*="transform"],
+.p-toast-message[style*="opacity"] {
+  transition: transform 0.3s ease, opacity 0.3s ease !important;
+}
+
+/* 备用CSS动画方案 */
 @keyframes toast-slide-in {
   from {
     transform: translateX(100%);
@@ -40,10 +129,6 @@
   }
 }
 
-.p-toast-message-leave-active {
-  animation: toast-slide-out 0.3s ease-in;
-}
-
 @keyframes toast-slide-out {
   from {
     transform: translateX(0);
@@ -53,6 +138,28 @@
     transform: translateX(100%);
     opacity: 0;
   }
+}
+
+/* 强制修复动画问题 */
+.p-toast-message {
+  transform-origin: right center !important;
+}
+
+/* 确保所有Toast消息都有正确的初始状态 */
+.p-toast-message:not([class*="enter"]):not([class*="leave"]):not(
+    [class*="appear"]
+  ) {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+/* 修复可能的样式冲突 - 确保动画不被覆盖 */
+.p-toast .p-toast-message * {
+  transition: none !important;
+}
+
+.p-toast .p-toast-message {
+  transition: transform 0.3s ease, opacity 0.3s ease !important;
 }
 
 /* Toast 内容 */
@@ -200,17 +307,14 @@
   align-items: flex-start !important;
 }
 
-/* 强制显示Toast - 调试用 */
+/* Toast 基础显示样式 */
 .p-toast {
   display: block !important;
   visibility: visible !important;
-  opacity: 1 !important;
 }
 
 .p-toast .p-toast-message {
   display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
   min-height: 60px !important;
   min-width: 300px !important;
 }

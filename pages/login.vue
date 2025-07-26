@@ -2,9 +2,7 @@
   <div class="login-container">
     <div class="login-wrapper">
       <div class="login-header">
-        <div class="logo-wrapper">
-          <i class="pi pi-server logo-icon"></i>
-        </div>
+        <AppLogo size="large" />
         <h1 class="login-title">EtaPanel</h1>
         <p class="login-subtitle">服务器管理面板</p>
       </div>
@@ -123,21 +121,10 @@ const handleLogin = async () => {
   margin-bottom: 1.5rem;
 }
 
-.logo-wrapper {
-  width: 80px;
-  height: 80px;
-  background: var(--primary-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Logo样式现在由AppLogo组件处理 */
+.app-logo {
   margin: 0 auto 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.logo-icon {
-  font-size: 2.5rem;
-  color: white;
 }
 
 .login-title {
@@ -183,13 +170,6 @@ const handleLogin = async () => {
     font-size: 2rem;
   }
 
-  .logo-wrapper {
-    width: 60px;
-    height: 60px;
-  }
-
-  .logo-icon {
-    font-size: 2rem;
-  }
+  /* 移动端Logo样式由AppLogo组件处理 */
 }
 </style>
