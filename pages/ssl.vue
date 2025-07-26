@@ -11,7 +11,9 @@
     </div>
 
     <DataTable :value="filteredSSLs" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
-      responsive-layout="scroll" :loading="pending">
+      responsive-layout="scroll" :loading="pending"
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} - {last} / {totalRecords}">
       <Column field="domain" header="域名">
         <template #body="slotProps">
           <span class="font-medium">{{ slotProps.data.domain }}</span>
@@ -52,7 +54,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">ACME客户端</label>
-          <Dropdown v-model="sslForm.acme_client_id" :options="acmeClients" 
+          <Select v-model="sslForm.acme_client_id" :options="acmeClients" 
                     optionLabel="email" optionValue="id" class="w-full" />
         </div>
         <div class="flex gap-4">

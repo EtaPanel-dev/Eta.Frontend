@@ -12,7 +12,9 @@
     </div>
 
     <DataTable :value="filteredSites" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
-      responsive-layout="scroll" :loading="pending">
+      responsive-layout="scroll" :loading="pending"
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} - {last} / {totalRecords}">
       <Column field="domain" header="域名">
         <template #body="slotProps">
           <div class="flex items-center gap-2">

@@ -36,8 +36,10 @@ export default defineNuxtPlugin(() => {
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     // 清理定时器和事件监听器
-    onBeforeUnmount(() => {
-        clearInterval(intervalId)
-        document.removeEventListener('visibilitychange', handleVisibilityChange)
-    })
+    if (process.client) {
+        window.addEventListener('beforeunload', () => {
+            clearInterval(intervalId)
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+        })
+    }
 })

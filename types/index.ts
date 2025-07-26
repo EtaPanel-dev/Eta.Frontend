@@ -2,7 +2,7 @@
 
 // API响应基础类型
 export interface ApiResponse<T = any> {
-  code: number
+  status: number
   message: string
   data: T
 }
@@ -26,6 +26,29 @@ export interface SystemInfo {
   cpu: number
   memoryUsed: string
   memoryTotal: string
+  memoryCached: string
+  memoryBuffer: string
+  swapUsed: number
+  swapTotal: number
+  hostname: string
+  os: string
+  arch: string
+  uptime: number
+  processes: number
+  cpuCores: number
+  networkInterfaces: ApiNetworkInterface[]
+}
+
+// API返回的网络接口类型
+export interface ApiNetworkInterface {
+  name: string
+  addresses: string[] | null
+  mtu: number
+  flags: string[]
+  rxBytes: number
+  txBytes: number
+  rxPackets: number
+  txPackets: number
 }
 
 export interface CpuInfo {
@@ -44,13 +67,13 @@ export interface MemoryInfo {
 }
 
 export interface DiskInfo {
-  filesystem: string
-  size: string
-  used: string
-  available: string
-  usage: string
-  usagePercent: number
-  mountpoint: string
+  device: string
+  mountPoint: string
+  fsType: string
+  total: number
+  used: number
+  available: number
+  usedPercent: number
 }
 
 export interface NetworkInfo {
@@ -179,16 +202,6 @@ export interface SystemMetric {
   subtitle: string
   icon: string
   color: string
-}
-
-export interface DiskInfo {
-  filesystem: string
-  size: string
-  used: string
-  available: string
-  usage: string
-  usagePercent: number
-  mountpoint: string
 }
 
 export interface SystemService {

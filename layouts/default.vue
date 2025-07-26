@@ -141,6 +141,7 @@ onMounted(() => {
   overflow-y: auto;
   margin-top: 60px;
   /* 为固定header留出空间 */
+  padding: 1.5rem;
   transition: background-color 0.3s ease;
 }
 

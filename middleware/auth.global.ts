@@ -4,13 +4,13 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  const authStore = useAuthStore()
-
-  // 初始化认证状态（从持久化存储恢复用户信息）
-  authStore.initialize()
-
-  // 检查JWT token是否有效
-  if (!authStore.isAuthenticated) {
-    return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+  // 只在客户端执行认证检查
+  if (process.client) {
+    const authStore = useAuthStore()
+    
+    // 检查JWT token是否有效
+    if (!authStore.isAuthenticated) {
+      return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+    }
   }
 })

@@ -28,13 +28,13 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium mb-2">时区</label>
-                  <Dropdown v-model="systemSettings.timezone" :options="timezones" option-label="label"
-                    option-value="value" class="w-full" />
+                  <Select v-model="systemSettings.timezone" :options="timezones" optionLabel="label"
+                    optionValue="value" class="w-full" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium mb-2">语言</label>
-                  <Dropdown v-model="systemSettings.language" :options="languages" option-label="label"
-                    option-value="value" class="w-full" />
+                  <Select v-model="systemSettings.language" :options="languages" optionLabel="label"
+                    optionValue="value" class="w-full" />
                 </div>
               </div>
               <div class="space-y-4">
@@ -138,8 +138,8 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-2">备份频率</label>
-                    <Dropdown v-model="backupSettings.frequency" :options="backupFrequencies" option-label="label"
-                      option-value="value" class="w-full" />
+                    <Select v-model="backupSettings.frequency" :options="backupFrequencies" optionLabel="label"
+                      optionValue="value" class="w-full" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-2">保留天数</label>
@@ -154,8 +154,8 @@
                 <div class="space-y-4">
                   <div>
                     <label class="block text-sm font-medium mb-2">存储类型</label>
-                    <Dropdown v-model="backupSettings.storage" :options="storageTypes" option-label="label"
-                      option-value="value" class="w-full" />
+                    <Select v-model="backupSettings.storage" :options="storageTypes" optionLabel="label"
+                      optionValue="value" class="w-full" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-2">存储路径</label>
@@ -327,8 +327,6 @@ const storageTypes = [
 .settings-content {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: 1.5rem;
-  min-height: 100vh;
   transition: all 0.3s ease;
 }
 
@@ -348,21 +346,26 @@ const storageTypes = [
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text-secondary);
+  font-weight: 500;
+  border: 1px solid transparent;
 }
 
 .settings-menu-item:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--surface-hover);
   color: var(--text-primary);
+  border-color: var(--surface-border);
 }
 
 .settings-menu-item.active {
-  background-color: var(--accent-primary);
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--primary-color-text);
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .grid {
@@ -399,14 +402,58 @@ const storageTypes = [
 }
 
 .border {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--p-content-border-color);
 }
 
 .rounded-lg {
-  border-radius: 0.5rem;
+  border-radius: var(--p-border-radius);
 }
 
 .bg-gray-50 {
-  background-color: var(--bg-secondary);
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+}
+
+/* 设置项容器样式 */
+:deep(.p-card) {
+  box-shadow: var(--p-card-shadow);
+  border: 1px solid var(--p-card-border-color);
+}
+
+:deep(.p-card .p-card-title) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--p-card-title-color);
+  margin-bottom: 1rem;
+}
+
+/* 表单标签样式 */
+label {
+  color: var(--p-text-color);
+  font-weight: 500;
+}
+
+/* 设置分组样式 */
+.p-4.border.rounded-lg {
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+  transition: all 0.2s;
+}
+
+.p-4.border.rounded-lg:hover {
+  border-color: var(--p-primary-color);
+  box-shadow: var(--p-focus-ring-shadow);
+}
+
+/* 系统状态信息样式 */
+.p-4.bg-gray-50.rounded-lg {
+  background: var(--p-surface-50);
+  border: 1px solid var(--p-content-border-color);
+}
+
+/* 按钮组样式 */
+.flex.gap-2.mt-6 {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--p-content-border-color);
 }
 </style>

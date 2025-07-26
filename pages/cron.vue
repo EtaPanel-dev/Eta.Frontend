@@ -11,7 +11,9 @@
     </div>
 
     <DataTable :value="filteredCrons" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]"
-      responsive-layout="scroll" :loading="pending">
+      responsive-layout="scroll" :loading="pending"
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} - {last} / {totalRecords}">
       <Column field="comment" header="任务名称">
         <template #body="slotProps">
           <div class="flex items-center gap-2">

@@ -84,6 +84,14 @@ const notification = useNotification();
 
 const currentYear = computed(() => new Date().getFullYear());
 
+// 检查已登录用户并重定向
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    const redirect = (route.query.redirect as string) || "/";
+    router.replace(redirect);
+  }
+});
+
 const handleLogin = async () => {
   if (!form.value.username || !form.value.password) return;
 

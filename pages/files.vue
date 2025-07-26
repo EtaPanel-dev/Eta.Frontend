@@ -186,6 +186,7 @@ const files = computed(() => {
   return filesData.value.files.map((file) => ({
     name: file.name,
     type: file.isDir ? "directory" : "file",
+    isDir: file.isDir,
     size: file.isDir ? "-" : formatFileSize(file.size),
     permissions: file.permissions,
     owner: file.owner,
@@ -209,8 +210,8 @@ const formatDate = (dateString: string) => {
 };
 
 // 方法
-const getFileIcon = (file: FileItem) => {
-  if (file.type === "directory") {
+const getFileIcon = (file: any) => {
+  if (file.isDir || file.type === "directory") {
     return "pi pi-folder text-blue-500";
   }
   const ext = file.name.split(".").pop()?.toLowerCase();
@@ -233,8 +234,8 @@ const getFileIcon = (file: FileItem) => {
   }
 };
 
-const handleFileClick = (file: FileItem) => {
-  if (file.type === "directory") {
+const handleFileClick = (file: any) => {
+  if (file.isDir || file.type === "directory") {
     navigateToPath(file.path);
   }
 };

@@ -7,46 +7,15 @@ body {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
+    sans-serif;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 页面布局和容器样式 - 支持暗色模式 */
-.page-container,
-.main-content,
-.content-wrapper {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-/* 通用页面内容样式 */
-.containers-content,
-.images-content,
-.volumes-content,
-.networks-content,
-.ssl-content,
-.cron-content,
-.redis-content,
-.mysql-content,
-.firewall-content,
-.files-content {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
 /* 页面标题样式 */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   transition: color 0.3s ease;
 }
@@ -62,6 +31,9 @@ code {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-primary);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
   transition: all 0.3s ease;
 }
 
@@ -70,5 +42,8 @@ pre {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-primary);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
   transition: all 0.3s ease;
 }

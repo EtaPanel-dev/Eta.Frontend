@@ -1,41 +1,33 @@
 /* 主样式文件 - 导入所有模块化CSS文件 */
 
+/* === 核心样式 === */
 /* 1. CSS变量定义 */
-@import "./variables.css";
+@import "./core/variables.css";
 
 /* 2. 基础样式 */
-@import "./base.css";
+@import "./core/base.css";
 
 /* 3. 工具类 */
-@import "./utilities.css";
+@import "./core/utilities.css";
 
-/* 4. 组件样式 */
-@import "./components.css";
+/* === 组件样式 === */
+/* 4. 按钮组件 */
+@import "./components/buttons.css";
 
-/* 5. PrimeVue组件样式 */
-@import "./primevue.css";
+/* 5. 卡片组件 */
+@import "./components/cards.css";
 
-/* 6. 数据表格样式 */
-@import "./datatable.css";
+/* 6. 表单组件 */
+@import "./components/forms.css";
 
-/* 7. 下拉菜单样式 */
-@import "./dropdown.css";
+/* 7. 布局组件 */
+@import "./components/layout.css";
 
-/* 8. 进度条样式 */
-@import "./progressbar.css";
+/* 8. 数据表格组件 */
+@import "./components/datatable.css";
 
-/* 9. 滚动条样式 */
-@import "./scrollbar.css";
+/* 9. Toast组件 */
+@import "./components/toast.css";
 
-/* 10. Toast样式 */
-@import "./toast.css";
-
-/* 修复中文字体显示 */
-.p-card-title,
-.text-sm,
-.text-lg,
-.text-xs {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
-    sans-serif !important;
-}
+/* 10. 其他组件 */
+@import "./components/misc.css";

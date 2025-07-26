@@ -1,0 +1,132 @@
+/* 布局组件样式 */
+
+/* 页面布局和容器样式 */
+.page-container,
+.main-content,
+.content-wrapper {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+/* 通用页面内容样式 */
+.containers-content,
+.images-content,
+.volumes-content,
+.networks-content,
+.ssl-content,
+.cron-content,
+.redis-content,
+.mysql-content,
+.firewall-content,
+.files-content,
+.processes-content,
+.settings-content,
+.dashboard-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* 系统信息样式 */
+.system-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 终端样式 */
+.terminal-window {
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Courier New", monospace;
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
+}
+
+.terminal-header {
+  background: var(--bg-secondary);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.terminal-body {
+  padding: 1rem;
+  min-height: 400px;
+  background: var(--bg-tertiary);
+  transition: all 0.3s ease;
+}
+
+.terminal-output {
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+.terminal-line {
+  margin-bottom: 0.5rem;
+}
+
+/* 占位符内容 */
+.placeholder-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+/* 骨架屏样式 */
+.skeleton-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.skeleton-title { width: 64px; height: 12px; }
+.skeleton-value { width: 80px; height: 28px; }
+.skeleton-subtitle { width: 96px; height: 12px; }
+.skeleton-extra { width: 80px; height: 12px; }
+
+.skeleton-row {
+  display: flex;
+  gap: 8px;
+}
+
+.skeleton-left { width: 48px; height: 12px; margin-bottom: 0; }
+.skeleton-right { width: 32px; height: 12px; margin-bottom: 0; }
+
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

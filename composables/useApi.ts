@@ -40,21 +40,24 @@ export const useApi = () => {
         },
       })
 
+      console.log(`API响应 ${endpoint}:`, response)
+      console.log(response.code)
+
       // 检查API响应状态
-      if (response.code !== 200) {
+      if (response.status !== 200) {
+        console.error(`API错误 ${endpoint}:`, response)
         throw new Error(response.message || '请求失败')
       }
 
       return response.data
     } catch (error: any) {
+      console.error(`API请求异常 ${endpoint}:`, error)
+      
       // 处理401未授权错误
       if (error.status === 401) {
-        // 如果是登录请求的401错误，返回具体的错误信息
         if (isLoginRequest) {
           throw new Error(error.data?.message || '用户名或密码错误')
         }
-
-        // 其他请求的401错误，表示token过期
         authStore.logout()
         throw new Error('登录已过期，请重新登录')
       }
@@ -64,8 +67,13 @@ export const useApi = () => {
         throw new Error(error.data?.message || `请求失败 (${error.status})`)
       }
 
-      // 处理网络错误
-      throw new Error(error.message || '网络请求失败')
+      // 处理CORS和网络错误
+      if (error.name === 'TypeError' || !error.status) {
+        throw new Error('网络连接失败，请检查网络设置')
+      }
+
+      // 处理其他错误
+      throw new Error(error.message || '请求失败')
     }
   }
   // 系统监控API
@@ -245,7 +253,7 @@ export const useApi = () => {
       console.log('Login response:', response) // 调试用
 
       // 检查API响应状态 - 适配实际的响应格式
-      const statusCode = response.code || response.status
+      const statusCode = response.status || response.code
       if (statusCode !== 200) {
         throw new Error(response.message || '登录失败')
       }
@@ -265,7 +273,7 @@ export const useApi = () => {
       // 如果是$fetch抛出的HTTP错误，需要特殊处理
       if (error.data && typeof error.data === 'object') {
         // 处理服务器返回的结构化错误响应
-        const statusCode = error.data.code || error.data.status
+        const statusCode = error.data.status || error.data.code
         if (statusCode && statusCode !== 200) {
           throw new Error(error.data.message || '登录失败')
         }

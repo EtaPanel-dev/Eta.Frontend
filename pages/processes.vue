@@ -21,11 +21,11 @@
           placeholder="搜索进程..."
           class="w-64"
         />
-        <Dropdown
+        <Select
           v-model="sortBy"
           :options="sortOptions"
-          option-label="label"
-          option-value="value"
+          optionLabel="label"
+          optionValue="value"
           class="w-32"
         />
       </div>
@@ -42,6 +42,8 @@
       v-model:selection="selectedProcesses"
       :sort-field="sortBy"
       :sort-order="1"
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} - {last} / {totalRecords}"
     >
       <Column selection-mode="multiple" header-style="width: 3rem" />
       <Column field="pid" header="PID" sortable class="w-20">
@@ -191,11 +193,11 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">终止信号</label>
-          <Dropdown
+          <Select
             v-model="killSignal"
             :options="signalOptions"
-            option-label="label"
-            option-value="value"
+            optionLabel="label"
+            optionValue="value"
             class="w-full"
           />
         </div>

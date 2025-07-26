@@ -13,8 +13,8 @@
 
     <DataTable :value="filteredContainers" :paginator="true" :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
       responsive-layout="scroll" :loading="pending"
-      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      current-page-report-template="显示第 {first} 到 {last} 条，共 {totalRecords} 条记录">
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} - {last} / {totalRecords}">
       <Column field="name" header="容器名称">
         <template #body="slotProps">
           <div class="flex items-center gap-2">

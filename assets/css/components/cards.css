@@ -1,0 +1,128 @@
+/* 卡片组件样式 */
+
+/* 全局卡片样式 */
+.p-card {
+  border: 1px solid var(--border-primary) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: var(--shadow-md) !important;
+  overflow: hidden !important;
+  background: var(--bg-primary) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-card:hover {
+  border-color: var(--border-secondary) !important;
+  box-shadow: var(--shadow-lg) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 卡片头部 */
+.p-card .p-card-header,
+.p-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 1.25rem 1.5rem 1rem 1.5rem !important;
+  border-bottom: 1px solid var(--border-tertiary) !important;
+  background: var(--bg-secondary) !important;
+  margin: 0 !important;
+  min-height: auto !important;
+  transition: all 0.3s ease !important;
+}
+
+/* 卡片标题 */
+.p-card .p-card-header .p-card-title,
+.p-card-header .p-card-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.5 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex: 1 !important;
+  transition: color 0.3s ease !important;
+  letter-spacing: 0.025em !important;
+  word-spacing: 0.1em !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
+    sans-serif !important;
+}
+
+/* 卡片内容 */
+.p-card .p-card-content,
+.p-card-content {
+  padding: 1.5rem !important;
+  margin: 0 !important;
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* 卡片主体 */
+.p-card .p-card-body,
+.p-card-body {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 卡片头部按钮 */
+.p-card-header .p-button {
+  margin: 0 !important;
+  padding: 0.5rem !important;
+  min-width: auto !important;
+}
+
+/* 特殊处理：没有标题的卡片 */
+.p-card:not(:has(.p-card-header)) .p-card-content {
+  padding: 1.75rem 1.5rem !important;
+}
+
+/* 确保卡片内第一个元素没有多余的上边距 */
+.p-card-content > *:first-child {
+  margin-top: 0 !important;
+}
+
+.p-card-content > .grid:first-child,
+.p-card-content > .space-y-3:first-child,
+.p-card-content > .space-y-4:first-child {
+  margin-top: 0 !important;
+}
+
+/* 系统概览卡片特殊样式 */
+.metric-card {
+  border: 1px solid var(--border-primary);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.metric-card .p-card-content {
+  padding: 1.75rem 1.5rem !important;
+}
+
+.metric-card .p-card-header {
+  display: none !important;
+}
+
+/* 指标图标样式 */
+.metric-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+/* 修复卡片标题边距 */
+.p-card-title {
+  margin-inline: 1.5rem !important;
+  margin-top: 1.5rem !important;
+}
