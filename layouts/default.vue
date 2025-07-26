@@ -1,12 +1,23 @@
 <template>
   <div class="app-layout">
     <!-- 侧边栏 -->
-    <AppSidebar :active-menu="activeMenu" @menu-change="handleMenuChange" />
+    <AppSidebar 
+      :active-menu="activeMenu" 
+      :is-open="sidebarOpen"
+      :is-mobile="isMobile"
+      @menu-change="handleMenuChange" 
+      @close="closeSidebar"
+    />
 
     <!-- 主要内容区域 -->
-    <div class="main-wrapper">
+    <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarOpen && !isMobile, 'mobile': isMobile }">
       <!-- 顶部导航栏 -->
-      <AppHeader :page-title="pageTitle" :system-info="systemInfo" />
+      <AppHeader 
+        :page-title="pageTitle" 
+        :system-info="systemInfo" 
+        :class="{ 'sidebar-collapsed': !sidebarOpen && !isMobile }"
+        @toggle-sidebar="toggleSidebar"
+      />
 
       <!-- 页面内容 -->
       <main class="app-main">
@@ -22,6 +33,33 @@ const router = useRouter()
 
 // 使用系统信息 composable
 const { systemInfo } = useSystemInfo()
+
+// 响应式状态管理
+const isMobile = ref(false)
+const sidebarOpen = ref(true)
+
+// 检测屏幕尺寸
+const checkScreenSize = () => {
+  if (process.client) {
+    isMobile.value = window.innerWidth <= 768
+    // 移动端默认关闭侧边栏
+    if (isMobile.value) {
+      sidebarOpen.value = false
+    } else {
+      sidebarOpen.value = true
+    }
+  }
+}
+
+// 切换侧边栏
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value
+}
+
+// 关闭侧边栏
+const closeSidebar = () => {
+  sidebarOpen.value = false
+}
 
 // 根据当前路由确定活动菜单
 const activeMenu = computed(() => {
@@ -107,10 +145,21 @@ onMounted(() => {
   }
 
   mediaQuery.addEventListener('change', handleThemeChange)
+  
+  // 初始化屏幕尺寸检测
+  checkScreenSize()
+  
+  // 监听窗口尺寸变化
+  const handleResize = () => {
+    checkScreenSize()
+  }
+  
+  window.addEventListener('resize', handleResize)
 
   // 清理监听器
   onUnmounted(() => {
     mediaQuery.removeEventListener('change', handleThemeChange)
+    window.removeEventListener('resize', handleResize)
   })
 })
 </script>
@@ -128,9 +177,16 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   margin-left: 260px;
-  /* 为固定侧边栏留出空间 */
   min-width: 0;
-  /* 防止flex子项溢出 */
+  transition: margin-left 0.3s ease;
+}
+
+.main-wrapper.sidebar-collapsed {
+  margin-left: 70px;
+}
+
+.main-wrapper.mobile {
+  margin-left: 0;
 }
 
 /* AppHeader 组件现在处理自己的样式 */
@@ -140,9 +196,14 @@ onMounted(() => {
   background: var(--bg-secondary);
   overflow-y: auto;
   margin-top: 60px;
-  /* 为固定header留出空间 */
-  padding: 1.5rem;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .app-main {
+    padding: 1rem;
+  }
 }
 
 /* 确保所有子页面都有正确的背景和间距 */
@@ -163,8 +224,30 @@ onMounted(() => {
 :deep(.terminal-content) {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  min-height: calc(100vh - 80px);
-  /* 减去header高度 */
+  padding: 1.5rem;
+  min-height: calc(100vh - 60px);
   transition: all 0.3s ease;
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+  :deep(.containers-content),
+  :deep(.images-content),
+  :deep(.volumes-content),
+  :deep(.networks-content),
+  :deep(.ssl-content),
+  :deep(.cron-content),
+  :deep(.redis-content),
+  :deep(.mysql-content),
+  :deep(.firewall-content),
+  :deep(.files-content),
+  :deep(.dashboard-content),
+  :deep(.logs-content),
+  :deep(.settings-content),
+  :deep(.websites-content),
+  :deep(.terminal-content) {
+    padding: 1rem;
+    min-height: calc(100vh - 60px);
+  }
 }
 </style>

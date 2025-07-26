@@ -1,8 +1,15 @@
 <template>
   <div class="main-header">
     <div class="header-content">
-      <!-- 左侧：页面标题 -->
+      <!-- 左侧：菜单按钮和页面标题 -->
       <div class="header-left">
+        <Button 
+          icon="pi pi-bars" 
+          text 
+          rounded 
+          class="menu-toggle-btn"
+          @click="$emit('toggle-sidebar')"
+        />
         <span class="page-title">{{ pageTitle }}</span>
       </div>
 
@@ -94,6 +101,10 @@ import type { SystemInfo } from "~/types";
 defineProps<{
   pageTitle: string;
   systemInfo: SystemInfo;
+}>();
+
+defineEmits<{
+  "toggle-sidebar": [];
 }>();
 
 // 响应式数据
@@ -195,6 +206,21 @@ onUnmounted(() => {
 
 .header-left {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.menu-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.menu-toggle-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
 }
 
 .page-title {
@@ -456,6 +482,11 @@ onUnmounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .main-header {
+    left: 0;
+    padding: 0 1rem;
+  }
+  
   .system-info {
     display: none;
   }
@@ -472,6 +503,12 @@ onUnmounted(() => {
 
   .notification-menu {
     width: 280px;
+  }
+}
+
+@media (min-width: 769px) {
+  .main-header.sidebar-collapsed {
+    left: 70px;
   }
 }
 

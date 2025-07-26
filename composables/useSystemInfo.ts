@@ -17,6 +17,7 @@ export const useSystemInfo = () => {
         memory: 0,
         disk: 0,
         cpu: 0,
+        cpuModel: '',
         memoryUsed: '0 GB',
         memoryTotal: '0 GB',
         memoryCached: '0.0',
@@ -71,6 +72,7 @@ export const useSystemInfo = () => {
                 load: data.cpu?.loadAverage ? data.cpu.loadAverage.join(', ') : '0.0',
                 cpu: Math.round(data.cpu?.usage || 0),
                 cpuCores: data.cpu?.cores || 0, // 直接从 data.cpu.cores 获取
+                cpuModel: data.cpu?.model || 'Unknown', // CPU型号
 
                 // 内存信息
                 memory: Math.round(data.memory?.usedPercent || 0),

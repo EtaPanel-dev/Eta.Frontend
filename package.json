@@ -8,6 +8,7 @@
     "@primevue/nuxt-module": "^4.3.6",
     "@primevue/themes": "^4.3.6",
     "eslint": "^9.0.0",
+    "monaco-editor": "^0.52.2",
     "nuxt": "^3.17.7",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",

@@ -288,8 +288,6 @@ const toggleRealTime = () => {
 .logs-content {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: 1.5rem;
-  min-height: 100vh;
   transition: all 0.3s ease;
 }
 

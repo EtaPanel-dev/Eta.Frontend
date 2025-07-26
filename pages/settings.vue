@@ -346,26 +346,26 @@ const storageTypes = [
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0 0.5rem;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text-secondary);
-  font-weight: 500;
-  border: 1px solid transparent;
+  position: relative;
+  white-space: nowrap;
 }
 
 .settings-menu-item:hover {
-  background-color: var(--surface-hover);
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
-  border-color: var(--surface-border);
 }
 
 .settings-menu-item.active {
-  background-color: var(--primary-color);
-  color: var(--primary-color-text);
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .grid {

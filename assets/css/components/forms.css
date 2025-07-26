@@ -189,52 +189,97 @@
   background-color: var(--bg-primary) !important;
 }
 
-/* Paginator组件样式 */
-.p-paginator {
-  background: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-primary, #e2e8f0);
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  margin-top: 1rem;
+/* Paginator组件样式 - 修复生产环境不一致问题 */
+.p-paginator,
+.p-datatable-paginator-bottom {
+  background: var(--bg-primary, #ffffff) !important;
+  border: 1px solid var(--border-primary, #e2e8f0) !important;
+  border-radius: 0.375rem !important;
+  padding: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  margin-top: 1rem !important;
 }
 
-.p-paginator .p-paginator-element {
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 0.25rem;
-  color: var(--text-primary, #334155);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  min-width: 2rem;
-  text-align: center;
+.p-paginator .p-paginator-element,
+.p-datatable-paginator-bottom .p-paginator-element {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 0.25rem !important;
+  color: var(--text-primary, #334155) !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  min-width: 2rem !important;
+  text-align: center !important;
 }
 
-.p-paginator .p-paginator-element:hover {
-  background: var(--bg-secondary, #f8fafc);
-  border-color: var(--border-secondary, #cbd5e1);
+.p-paginator .p-paginator-element:hover,
+.p-datatable-paginator-bottom .p-paginator-element:hover {
+  background: var(--bg-secondary, #f8fafc) !important;
+  border-color: var(--border-secondary, #cbd5e1) !important;
 }
 
-.p-paginator .p-paginator-element.p-highlight {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: #ffffff;
+.p-paginator .p-paginator-element.p-highlight,
+.p-datatable-paginator-bottom .p-paginator-element.p-highlight {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
 }
 
-.p-paginator .p-paginator-element:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.p-paginator .p-paginator-element:disabled,
+.p-datatable-paginator-bottom .p-paginator-element:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
 }
 
-.p-paginator .p-paginator-current {
-  color: var(--text-secondary, #64748b);
-  font-size: 0.875rem;
-  padding: 0.5rem;
+.p-paginator .p-paginator-current,
+.p-datatable-paginator-bottom .p-paginator-current {
+  color: var(--text-secondary, #64748b) !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem !important;
+}
+
+/* Tag组件样式修复 */
+.p-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.375rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+  line-height: 1 !important;
+}
+
+.p-tag.p-tag-success {
+  background: var(--success, #10b981) !important;
+  color: #ffffff !important;
+}
+
+.p-tag.p-tag-danger {
+  background: var(--danger, #ef4444) !important;
+  color: #ffffff !important;
+}
+
+.p-tag.p-tag-warning {
+  background: var(--warning, #f59e0b) !important;
+  color: #ffffff !important;
+}
+
+.p-tag.p-tag-info {
+  background: var(--info, #3b82f6) !important;
+  color: #ffffff !important;
+}
+
+.p-tag.p-tag-secondary {
+  background: var(--text-tertiary, #94a3b8) !important;
+  color: #ffffff !important;
 }
 
 /* Select组件样式 */

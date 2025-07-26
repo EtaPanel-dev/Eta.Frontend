@@ -19,7 +19,8 @@ export default defineNuxtConfig({
                     darkModeSelector: 'system',
                     cssLayer: false
                 }
-            }
+            },
+            unstyled: false
         },
         autoImport: true,
         components: {
@@ -30,6 +31,9 @@ export default defineNuxtConfig({
         'primeicons/primeicons.css',
         '~/assets/css/main.css'
     ],
+    build: {
+        transpile: ['primevue']
+    },
     app: {
         head: {
             link: [

@@ -24,6 +24,7 @@ export interface SystemInfo {
   memory: number
   disk: number
   cpu: number
+  cpuModel: string
   memoryUsed: string
   memoryTotal: string
   memoryCached: string

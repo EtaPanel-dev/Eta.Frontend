@@ -101,6 +101,23 @@
       </template>
     </Dialog>
 
+    <!-- 文件编辑器对话框 -->
+    <Dialog
+      v-model:visible="showEditor"
+      modal
+      :header="`编辑文件: ${editingFile?.name || ''}`"
+      :style="{ width: '90vw', height: '80vh' }"
+      :maximizable="true"
+    >
+      <div class="editor-container">
+        <div ref="editorContainer" class="monaco-editor-container"></div>
+      </div>
+      <template #footer>
+        <Button label="取消" text @click="closeEditor" />
+        <Button label="保存" @click="saveFile" />
+      </template>
+    </Dialog>
+
     <!-- 隐藏的文件上传输入 -->
     <input
       ref="fileInput"
@@ -129,6 +146,11 @@ const selectedFiles = ref<FileItem[]>([]);
 const showCreateFolder = ref(false);
 const newFolderName = ref("");
 const fileInput = ref<HTMLInputElement>();
+const showEditor = ref(false);
+const editingFile = ref<any>(null);
+const fileContent = ref("");
+const editorContainer = ref<HTMLElement>();
+let monacoEditor: any = null;
 
 // 路径分段
 const pathSegments = computed(() => {
@@ -141,7 +163,7 @@ const {
   pending,
   refresh,
 } = await useLazyAsyncData(
-  "files",
+  () => `files-${currentPath.value}`,
   async () => {
     try {
       const result = await api.getFiles(currentPath.value);
@@ -234,15 +256,98 @@ const getFileIcon = (file: any) => {
   }
 };
 
-const handleFileClick = (file: any) => {
+const handleFileClick = async (file: any) => {
   if (file.isDir || file.type === "directory") {
     navigateToPath(file.path);
+  } else {
+    await openFileEditor(file);
+  }
+};
+
+const openFileEditor = async (file: any) => {
+  try {
+    const content = await api.getFileContent(file.path);
+    editingFile.value = file;
+    fileContent.value = content;
+    showEditor.value = true;
+    
+    await nextTick();
+    initMonacoEditor();
+  } catch (error) {
+    console.error("读取文件内容失败:", error);
+  }
+};
+
+const saveFile = async () => {
+  if (!editingFile.value || !monacoEditor) return;
+  
+  try {
+    const content = monacoEditor.getValue();
+    await api.saveFileContent(editingFile.value.path, content);
+    showEditor.value = false;
+  } catch (error) {
+    console.error("保存文件失败:", error);
+  }
+};
+
+const closeEditor = () => {
+  if (monacoEditor) {
+    monacoEditor.dispose();
+    monacoEditor = null;
+  }
+  showEditor.value = false;
+  editingFile.value = null;
+  fileContent.value = "";
+};
+
+const getLanguageFromFileName = (fileName: string) => {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  const languageMap: Record<string, string> = {
+    'js': 'javascript',
+    'ts': 'typescript',
+    'json': 'json',
+    'html': 'html',
+    'css': 'css',
+    'scss': 'scss',
+    'vue': 'html',
+    'py': 'python',
+    'php': 'php',
+    'java': 'java',
+    'cpp': 'cpp',
+    'c': 'c',
+    'sh': 'shell',
+    'sql': 'sql',
+    'xml': 'xml',
+    'yaml': 'yaml',
+    'yml': 'yaml',
+    'md': 'markdown'
+  };
+  return languageMap[ext || ''] || 'plaintext';
+};
+
+const initMonacoEditor = async () => {
+  if (!editorContainer.value) return;
+  
+  try {
+    const monaco = await import('monaco-editor');
+    
+    monacoEditor = monaco.editor.create(editorContainer.value, {
+      value: fileContent.value,
+      language: getLanguageFromFileName(editingFile.value?.name || ''),
+      theme: 'vs-dark',
+      automaticLayout: true,
+      fontSize: 14,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      wordWrap: 'on'
+    });
+  } catch (error) {
+    console.error('初始化Monaco Editor失败:', error);
   }
 };
 
 const navigateToPath = (path: string) => {
   currentPath.value = path;
-  refresh();
 };
 
 const navigateToSegment = (index: number) => {
@@ -344,5 +449,17 @@ const deleteFile = async (file: FileItem) => {
   border-radius: 0.25rem;
   padding: 0.25rem;
   margin: -0.25rem;
+}
+
+.editor-container {
+  height: 60vh;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.monaco-editor-container {
+  width: 100%;
+  height: 100%;
 }
 </style>

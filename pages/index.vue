@@ -91,10 +91,12 @@
             <CustomProgressBar :value="cpuUsage" class-name="mb-2" />
             <div class="grid grid-cols-4 gap-2 text-xs text-secondary-content">
               <div>负载: {{ systemInfo?.load || "0.0" }}</div>
-              <!-- 确保这里 cpuCores 有值 -->
               <div>核心: {{ systemInfo?.cpuCores || 0 }}</div>
               <div>进程: {{ systemInfo?.processes || 0 }}</div>
               <div>架构: {{ systemInfo?.arch || "Unknown" }}</div>
+            </div>
+            <div class="mt-2 text-xs text-secondary-content truncate" :title="systemInfo?.cpuModel">
+              型号: {{ systemInfo?.cpuModel || "Unknown" }}
             </div>
           </div>
         </template>
@@ -661,8 +663,6 @@ onBeforeUnmount(() => {
 .dashboard-content {
   background: var(--bg-secondary, #f8fafc); /* 默认值 */
   color: var(--text-primary, #334155); /* 默认值 */
-  padding: 1.5rem;
-  min-height: 100vh;
   transition: all 0.3s ease;
 }
 

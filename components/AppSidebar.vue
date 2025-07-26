@@ -1,9 +1,12 @@
 <template>
-  <div class="layout-sidebar">
+  <!-- 移动端遮罩层 -->
+  <div v-if="isMobile && isOpen" class="sidebar-overlay" @click="$emit('close')" />
+  
+  <div class="layout-sidebar" :class="{ 'collapsed': !isOpen, 'mobile': isMobile }">
     <div class="sidebar-header">
       <div class="flex items-center gap-2 p-3">
         <AppLogo size="medium" />
-        <span class="font-bold text-lg">EtaPanel</span>
+        <span v-show="isOpen" class="font-bold text-lg">EtaPanel</span>
       </div>
     </div>
 
@@ -19,10 +22,11 @@
           :key="item.key"
           class="nav-item"
           :class="{ active: props.activeMenu === item.key }"
+          :data-tooltip="item.label"
           @click="handleMenuClick(item.key)"
         >
           <i :class="item.icon" />
-          <span>{{ item.label }}</span>
+          <span v-show="isOpen">{{ item.label }}</span>
         </div>
       </div>
     </div>
@@ -34,16 +38,23 @@ import type { MenuSection } from "~/types";
 
 const props = defineProps<{
   activeMenu: string;
+  isOpen: boolean;
+  isMobile: boolean;
 }>();
 
 const emit = defineEmits<{
   "menu-change": [menu: string];
+  "close": [];
 }>();
 
 // 处理菜单项点击
 const handleMenuClick = (menuKey: string) => {
   // 发出菜单变化事件
   emit("menu-change", menuKey);
+  // 移动端点击菜单项后关闭侧边栏
+  if (props.isMobile) {
+    emit("close");
+  }
 };
 
 // 菜单配置
@@ -110,6 +121,30 @@ const menuSections: MenuSection[] = [
   transition: all 0.3s ease;
 }
 
+.layout-sidebar.collapsed {
+  width: 70px;
+}
+
+.layout-sidebar.mobile {
+  transform: translateX(-100%);
+  z-index: 1100;
+}
+
+.layout-sidebar.mobile:not(.collapsed) {
+  transform: translateX(0);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  transition: opacity 0.3s ease;
+}
+
 .sidebar-header {
   border-bottom: 1px solid var(--border-primary);
   flex-shrink: 0;
@@ -145,7 +180,16 @@ const menuSections: MenuSection[] = [
   letter-spacing: 0.05em;
   padding: 0 1rem;
   margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.layout-sidebar.collapsed .nav-title {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-item {
@@ -159,6 +203,21 @@ const menuSections: MenuSection[] = [
   transition: all 0.2s;
   color: var(--text-secondary);
   position: relative;
+  white-space: nowrap;
+}
+
+.layout-sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 0.75rem;
+  margin: 0 0.25rem;
+}
+
+.layout-sidebar.collapsed .nav-item i {
+  margin: 0;
+}
+
+.layout-sidebar.collapsed .nav-item span {
+  display: none;
 }
 
 .nav-item:hover {
@@ -195,5 +254,16 @@ const menuSections: MenuSection[] = [
 
 .sidebar-content::-webkit-scrollbar-thumb:hover {
   background: var(--border-primary);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .layout-sidebar {
+    width: 280px;
+  }
+  
+  .layout-sidebar.collapsed {
+    width: 280px;
+  }
 }
 </style>
