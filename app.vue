@@ -2,11 +2,10 @@
   <NuxtLayout>
     <NuxtLoadingIndicator />
     <NuxtPage />
-    <Toast
-      position="top-right"
-      :breakpoints="{ '960px': { width: '100%', right: '0', left: '0' } }"
-      :base-z-index="99999"
-    />
+    <Toast position="top-right" :breakpoints="{ '960px': { width: '100%', right: '0', left: '0' } }"
+      :base-z-index="99999" />
+    <!-- 腾讯客服聊天组件 -->
+    <TencentCustomerService />
   </NuxtLayout>
 </template>
 

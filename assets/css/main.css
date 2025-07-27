@@ -34,3 +34,7 @@
 
 /* 11. 其他组件 */
 @import "./components/misc.css";
+
+body>div.p-dialog-mask.p-overlay-mask.p-overlay-mask-enter>div>div.p-dialog-content {
+    height: 100% !important;
+}
